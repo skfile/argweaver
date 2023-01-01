@@ -2163,8 +2163,8 @@ class FapwsServer(ServerAdapter):
         evwsgi.start(self.host, port)
         # fapws3 never releases the GIL. Complain upstream. I tried. No luck.
         if 'BOTTLE_CHILD' in os.environ and not self.quiet:
-            print "WARNING: Auto-reloading does not work with Fapws3."
-            print "         (Fapws3 breaks python thread support)"
+            print("WARNING: Auto-reloading does not work with Fapws3.")
+            print("         (Fapws3 breaks python thread support)")
         evwsgi.set_base_module(base)
         def app(environ, start_response):
             environ['wsgi.multiprocess'] = False
@@ -2943,10 +2943,10 @@ ext = _ImportRedirect(__name__+'.ext', 'bottle_%s').module
 if __name__ == '__main__':
     opt, args, parser = _cmd_options, _cmd_args, _cmd_parser
     if opt.version:
-        print 'Bottle', __version__; sys.exit(0)
+        print('Bottle', __version__; sys.exit(0))
     if not args:
         parser.print_help()
-        print '\nError: No application specified.\n'
+        print('\nError: No application specified.\n')
         sys.exit(1)
 
     try:

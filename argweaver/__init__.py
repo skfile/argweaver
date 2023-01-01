@@ -1004,7 +1004,7 @@ def add_arg_thread(arg, new_name, thread, recombs):
 
         if parent:
             if parent.age < time:
-                print leaves, parent.age, time, ignore
+                print(leaves, parent.age, time, ignore)
                 tree = arg.get_marginal_tree(pos-.5).get_tree()
                 tree.write()
                 treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -1055,7 +1055,7 @@ def add_arg_thread(arg, new_name, thread, recombs):
 
             if thread[rpos][1] != thread[rpos+1][1]:
                 if rtime > min(thread[rpos][1], thread[rpos+1][1]):
-                    print ">>", rtime, thread[rpos], thread[rpos+1]
+                    print(">>", rtime, thread[rpos], thread[rpos+1])
                     treelib.draw_tree_names(
                         arg.get_marginal_tree(rpos-.5).get_tree(),
                         maxlen=8, minlen=8)
@@ -1217,7 +1217,7 @@ def arg_lca(arg, leaves, time, pos, ignore=None):
 
         if parent:
             if parent.age < time:
-                print (leaves, parent.age, time)
+                print(leaves, parent.age, time)
                 tree = arg.get_marginal_tree(pos-.5).get_tree()
                 tree.write()
                 treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -1596,7 +1596,7 @@ def get_deterministic_transitions(states1, states2, times,
 
             node = last_tree.nodes.get(node1, None)
             if node is None:
-                print node1
+                print(node1)
                 treelib.draw_tree_names(last_tree.get_tree(),
                                         minlen=8, maxlen=8)
                 raise Exception("unknown node name '%s'" % node1)

@@ -1048,7 +1048,7 @@ def resample_arg_regions(arg, seqs, niters, width=1000,
 
         if verbose:
             util.tic("sample ARG region %s" % region)
-        print arg
+        print(arg)
         arg = argweaver.resample_arg_region(arg, seqs, region[0], region[1],
                                             rho=rho, mu=mu, times=times,
                                             carg=carg, verbose=True)
