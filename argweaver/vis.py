@@ -37,9 +37,9 @@ def layout_tree_leaves(tree, age_func=lambda node: node.age):
         else:
             y += (age_func(node) / 1e3) + 1
 
-    vals = layout.values()
+    vals = list(layout.values())
     mid = (max(vals) + min(vals)) / 2.0
-    for k, v in layout.items():
+    for k, v in list(layout.items()):
         layout[k] = (v - mid)
 
     return layout
@@ -89,7 +89,7 @@ def iter_layout_smc(smc, names=None):
         elif item["tag"] == "TREE":
             assert names is not None
             tree = item["tree"]
-            if isinstance(tree, basestring):
+            if isinstance(tree, str):
                 raise Exception("Trees need to be parsed")
 
             block = [item["start"]-1, item["end"]]

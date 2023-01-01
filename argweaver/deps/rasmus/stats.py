@@ -11,7 +11,7 @@ from math import floor
 from math import log
 from math import pi
 from math import sqrt
-from itertools import izip
+
 import cmath
 import random
 
@@ -58,7 +58,7 @@ def mode(vals):
     """Computes the mode of a list of numbers"""
     top = 0
     topkey = None
-    for key, val in util.hist_dict(vals).iteritems():
+    for key, val in util.hist_dict(vals).items():
         if val > top:
             top = val
             topkey = key
@@ -71,7 +71,7 @@ def msqerr(vals1, vals2):
     assert len(vals1) == len(vals2), "lists are not the same length"
 
     return mean([(vals1[i] - vals2[i]) ** 2
-                 for i in xrange(len(vals1))])
+                 for i in range(len(vals1))])
 
 
 def variance(vals):
@@ -95,7 +95,7 @@ def covariance(lst1, lst2):
     m1 = mean(lst1)
     m2 = mean(lst2)
     tot = 0.0
-    for i in xrange(len(lst1)):
+    for i in range(len(lst1)):
         tot += (lst1[i] - m1) * (lst2[i] - m2)
     return tot / (len(lst1)-1)
 
@@ -155,7 +155,7 @@ def entropy(probs, base=2):
 
 def cross_entropy(p, q, base=2):
     try:
-        return - sum(i * log(j, base) for i, j in izip(p, q) if i > 0.0)
+        return - sum(i * log(j, base) for i, j in zip(p, q) if i > 0.0)
     except OverflowError:
         return util.INF
 
@@ -223,7 +223,7 @@ def pearsonsRegression(observed, expected):
     """Pearson's coefficient of regression"""
 
     # error sum of squares
-    ess = sum((a - b)**2 for a, b in izip(observed, expected))
+    ess = sum((a - b)**2 for a, b in zip(observed, expected))
 
     # total sum of squares
     u = mean(observed)
@@ -314,7 +314,7 @@ def logsum(vals):
             maxi = i
 
     expsum = 1.0
-    for i in xrange(len(vals)):
+    for i in range(len(vals)):
         if i != maxi and vals[i] - maxval > SUM_LOG_THRESHOLD:
             expsum += exp(vals[i] - maxval)
 
@@ -385,7 +385,7 @@ def smooth(vals, radius):
     vals2 = []
     vlen = len(vals)
 
-    for i in xrange(vlen):
+    for i in range(vlen):
         radius2 = min(i, vlen - i - 1, radius)
         vals2.append(mean(vals[i-radius2:i+radius2+1]))
 
@@ -492,7 +492,7 @@ def iter_window(x, xdist, func=lambda win: win, minsize=0, key=lambda x: x):
 
     x must be sorted least to greatest
     """
-    for lowi, highi, low, high in iter_window_index(map(key, x), xdist):
+    for lowi, highi, low, high in iter_window_index(list(map(key, x)), xdist):
         if highi - lowi >= minsize:
             yield (high + low)/2.0, func(x[lowi:highi])
 
@@ -537,7 +537,7 @@ def smooth2(x, y, xradius, minsize=0, sort=False):
     low = 0
     high = 0
 
-    for i in xrange(vlen):
+    for i in range(vlen):
         xi = x[i]
 
         xradius2 = min(xi - start, end - xi, xradius)
@@ -564,7 +564,7 @@ def factorial(x, k=1):
     """Simple implementation of factorial"""
 
     n = 1
-    for i in xrange(int(k)+1, int(x)+1):
+    for i in range(int(k)+1, int(x)+1):
         n *= i
     return n
 
@@ -573,7 +573,7 @@ def logfactorial(x, k=1):
     """returns the log(factorial(x) / factorial(k)"""
 
     n = 0
-    for i in xrange(int(k)+1, int(x)+1):
+    for i in range(int(k)+1, int(x)+1):
         n += log(i)
     return n
 
@@ -591,7 +591,7 @@ def choose(n, k):
 
     t = 1.0
     n2 = n + 1.0
-    for i in xrange(1, k+1):
+    for i in range(1, k+1):
         t *= (n2 - i) / i
     return int(t + 0.5)
     #return factorial(n, n - k) / factorial(k)
@@ -610,7 +610,7 @@ def fchoose(n, k):
 
     t = 1.0
     n2 = n + 1.0
-    for i in xrange(1, k+1):
+    for i in range(1, k+1):
         t *= (n2 - i) / i
     return t
 
@@ -628,7 +628,7 @@ def logchoose(n, k):
 
     t = 0.0
     n2 = n + 1.0
-    for i in xrange(1, k+1):
+    for i in range(1, k+1):
         t += log((n2 - i) / i)
     return t
 
@@ -661,7 +661,7 @@ def sample(weights):
     total = sum(weights)
     pick = random.random() * total
     x = 0
-    for i in xrange(len(weights)):
+    for i in range(len(weights)):
         x += weights[i]
         if x >= pick:
             return i
@@ -738,7 +738,7 @@ def enrichItems(in_items, out_items, M=None, N=None, useq=True, extra=False):
                                   "pval", "pval_under"])
 
     # do hypergeometric
-    for item, (a, b) in counts.iteritems():
+    for item, (a, b) in counts.items():
         tab.add(item=item,
                 in_count=a,
                 out_count=b,
@@ -830,7 +830,7 @@ def poissonPdf(x, params):
         return 0.0
 
     a = 0
-    for i in xrange(1, int(x)+1):
+    for i in range(1, int(x)+1):
         a += log(lambd / float(i))
     return exp(-lambd + a)
 
@@ -956,7 +956,7 @@ def betaPdf(x, params):
 
 
 def betaPdf3(x, params):
-    alpha, beta = map(int, params)
+    alpha, beta = list(map(int, params))
     if 0 < x < 1 and alpha > 0 and beta > 0:
         n = min(alpha-1, beta-1)
         m = max(alpha-1, beta-1)
@@ -1046,7 +1046,7 @@ def gammainc(a, x):
 
     ret = 0
     term = 1.0/x
-    for n in xrange(GAMMA_INCOMP_ACCURACY):
+    for n in range(GAMMA_INCOMP_ACCURACY):
         term *= x/(a+n)
         ret += term
         if term < .0001:
@@ -1068,12 +1068,12 @@ def erf(x):
 
 def chiSquare(rows, expected=None, nparams=0):
     # ex: rows = [[1,2,3],[1,4,5]]
-    assert util.equal(map(len, rows))
+    assert util.equal(list(map(len, rows)))
 
-    if 0 in map(sum, rows):
+    if 0 in list(map(sum, rows)):
         return 0, 1.0
-    cols = zip(* rows)
-    if 0 in map(sum, cols):
+    cols = list(zip(* rows))
+    if 0 in list(map(sum, cols)):
         return 0, 1.0
 
     if not expected:
@@ -1092,8 +1092,8 @@ def chiSquare(rows, expected=None, nparams=0):
 
 
 def make_expected(rows):
-    rowtotals = map(sum, rows)
-    coltotals = map(sum, zip(* rows))
+    rowtotals = list(map(sum, rows))
+    coltotals = list(map(sum, list(zip(* rows))))
     grandtotal = float(sum(rowtotals))
 
     expected = []
@@ -1107,14 +1107,14 @@ def make_expected(rows):
 
 
 def chiSquareFit(xbins, ybins, func, nsamples, nparams, minsamples=5):
-    sizes = [xbins[i+1] - xbins[i] for i in xrange(len(xbins)-1)]
+    sizes = [xbins[i+1] - xbins[i] for i in range(len(xbins)-1)]
     sizes.append(sizes[-1])  # NOTE: assumes bins are of equal size
 
     # only focus on bins that are large enough
-    counts = [ybins[i] * sizes[i] * nsamples for i in xrange(len(xbins)-1)]
+    counts = [ybins[i] * sizes[i] * nsamples for i in range(len(xbins)-1)]
 
     expected = []
-    for i in xrange(len(xbins)-1):
+    for i in range(len(xbins)-1):
         expected.append((func(xbins[i]) + func(xbins[i+1]))/2.0 *
                         sizes[i] * nsamples)
 
@@ -1192,7 +1192,7 @@ def spearman(vec1, vec2):
     rank1 = util.sortranks(vec1)
     rank2 = util.sortranks(vec2)
 
-    R = sum((rank1[i] - rank2[i])**2 for i in xrange(n))
+    R = sum((rank1[i] - rank2[i])**2 for i in range(n))
 
     Z = (6*R - n*(n*n - 1)) / (n*(n + 1) * sqrt(n - 1))
 
@@ -1214,7 +1214,7 @@ def fitCurve(xdata, ydata, func, paramsInit):
     p0 = scipy.array(paramsInit)
 
     def error(params):
-        y2 = scipy.array(map(lambda x: func(x, params), xdata))
+        y2 = scipy.array([func(x, params) for x in xdata])
         return y - y2
 
     params, msg = scipy.optimize.leastsq(error, p0)
@@ -1269,8 +1269,8 @@ def chi_square_fit(cdf, params, data, ndivs=20, minsamples=5, plot=False,
         binsize = len(data) / ndivs
 
     data = sorted(data)
-    bins = [data[i:i+binsize] for i in xrange(0, len(data), binsize)]
-    obs = scipy.array(map(len, bins))
+    bins = [data[i:i+binsize] for i in range(0, len(data), binsize)]
+    obs = scipy.array(list(map(len, bins)))
     ind = util.find(lambda x: x[-1] >= start and x[0] <= end, bins)
     obs = util.mget(obs, ind)
 
@@ -1305,8 +1305,8 @@ def fit_distrib(cdf, params_init, data, ndivs=20, minsamples=5,
         binsize = len(data) / ndivs
 
     data = sorted(data)
-    bins = [data[i:i+binsize] for i in xrange(0, len(data), binsize)]
-    obs = scipy.array(map(len, bins))
+    bins = [data[i:i+binsize] for i in range(0, len(data), binsize)]
+    obs = scipy.array(list(map(len, bins)))
     ind = util.find(lambda x: x[-1] >= start and x[0] <= end, bins)
     obs = util.mget(obs, ind)
 

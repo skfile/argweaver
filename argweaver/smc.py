@@ -6,7 +6,7 @@
 """
 
 from contextlib import closing
-import StringIO
+import io
 
 import argweaver
 
@@ -22,7 +22,7 @@ class SMCReader (object):
 
     def __init__(self, filename, parse_trees=False, apply_spr=False):
 
-        if isinstance(filename, basestring):
+        if isinstance(filename, str):
             # read SMC from file
             self._filename = filename
             self._infile = iter_smc_file(filename,
@@ -39,14 +39,14 @@ class SMCReader (object):
         header_tags = ("NAMES", "REGION")
         self.header = {}
         while self._stream.peek({"tag": ""})["tag"] in header_tags:
-            self.header.update(self._stream.next())
+            self.header.update(next(self._stream))
             del self.header["tag"]
 
     def __iter__(self):
         return self
 
-    def next(self):
-        return self._stream.next()
+    def __next__(self):
+        return next(self._stream)
 
     def peek(self, default=None):
         return self._stream.peek(default)
@@ -253,7 +253,7 @@ def write_smc(filename, smc):
                            item["chrom"], item["start"], item["end"], out=out)
 
         elif item["tag"] == "TREE":
-            if not isinstance(item["tree"], basestring):
+            if not isinstance(item["tree"], str):
                 tree = format_tree(item["tree"])
             else:
                 tree = item["tree"]
@@ -323,7 +323,7 @@ def format_tree(tree):
             return "%d:%f%s" % (node.name, node.dist,
                                 treelib.format_nhx_comment(node.data))
 
-    stream = StringIO.StringIO()
+    stream = io.StringIO()
     tree.write(stream, writeData=write_data, oneline=True, rootData=True)
     return stream.getvalue()
 
@@ -351,7 +351,7 @@ def smc2sprs(smc):
 
         elif item["tag"] == "TREE":
             tree = item["tree"]
-            if isinstance(tree, basestring):
+            if isinstance(tree, str):
                 tree = parse_tree(tree)
 
             if not init_tree:
@@ -392,7 +392,7 @@ def smc2arg(smc):
     """
 
     it = smc2sprs(smc)
-    tree = it.next()
+    tree = next(it)
     arg = arglib.make_arg_from_sprs(tree, it)
 
     return arg
@@ -514,16 +514,16 @@ def iter_smc_trees(smc, pos):
     Iterate through local trees at positions 'pos' in filename 'smc_file'
     """
     need_close = False
-    if isinstance(smc, basestring):
+    if isinstance(smc, str):
         need_close = True
         smc = SMCReader(smc)
     try:
         piter = iter(pos)
-        item = smc.next()
+        item = next(smc)
         for p in piter:
             while (item["tag"] != "TREE" or
                    item["end"] < p):
-                item = smc.next()
+                item = next(smc)
             if item["start"] <= p:
                 yield smc.parse_tree(item["tree"])
     except StopIteration:

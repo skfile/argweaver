@@ -15,5 +15,5 @@ for fn in files:
         os.makedirs(dirname)
     fn1 = srcdir + "/" + fn
     fn2 = destdir + "/" + fn
-    print "%s --> %s" % (fn1, fn2)
+    print("%s --> %s" % (fn1, fn2))
     shutil.copy(fn1, fn2)

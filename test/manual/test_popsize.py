@@ -158,7 +158,7 @@ class Popsize (unittest.TestCase):
             y.append(mle_popsize_tree(tree, mintime=0))
 
         # thin popsizes
-        x2 = range(0, length, length//5000); y2 = []
+        x2 = list(range(0, length, length//5000)); y2 = []
         j = 0
         for i in range(len(x2)):
             while j < len(x) and x[j] < x2[i]:
@@ -204,7 +204,7 @@ class Popsize (unittest.TestCase):
         popsizes2 = arghmm.est_arg_popsizes(arg, times=times)
         util.toc()
         
-        print popsizes2
+        print(popsizes2)
         p = plot(times, popsizes, xlog=10, xmin=10, ymin=0, ymax=20000)
         p.plot(times[1:], popsizes2)
         
@@ -237,7 +237,7 @@ class Popsize (unittest.TestCase):
                                               step=length/1000, verbose=True)
         util.toc()
         
-        print popsizes2
+        print(popsizes2)
         p = plot(times, popsizes, xlog=10, xmin=10, ymin=0, ymax=20000)
         p.plot(times[1:], popsizes2)
 
@@ -275,11 +275,11 @@ class Popsize (unittest.TestCase):
                                      refine=0, verbose=True)
             popsizes3 = arghmm.est_arg_popsizes(arg2, times=times)
             #popsizes3 = arghmm.est_popsizes_trees(arg2, times, length/200)
-            print popsizes3
+            print(popsizes3)
             popsizes2 = vadd(popsizes2, popsizes3)
         popsizes2 = vdivs(popsizes2, float(nsamples))
 
-        print popsizes2
+        print(popsizes2)
         p = plot(times, popsizes, xlog=10, xmin=10)
         p.plot(times[1:], popsizes2)
 
@@ -317,11 +317,11 @@ class Popsize (unittest.TestCase):
                                      refine=refine, verbose=True, carg=True)
             popsizes3 = arghmm.est_popsizes_trees(arg2, times, length/1000,
                                                   verbose=True)
-            print popsizes3
+            print(popsizes3)
             popsizes2 = vadd(popsizes2, popsizes3)
         popsizes2 = vdivs(popsizes2, float(nsamples))
 
-        print popsizes2
+        print(popsizes2)
         p = plot(times, popsizes, xlog=10, xmin=10)
         p.plot(times[1:], popsizes2)
 

@@ -127,7 +127,7 @@ class Svg:
             else:
                 self.out.write("stroke='%s' " % (color2string(color)))
 
-        for key, val in options.iteritems():
+        for key, val in options.items():
             self.out.write("%s='%s' " % (key, val))
     
     
@@ -147,7 +147,7 @@ class Svg:
         self.out.write(
             "<polygon %s points='" % colorFields(strokeColor, fillColor))
         
-        for i in xrange(0, len(verts), 2):    
+        for i in range(0, len(verts), 2):    
             self.out.write("%f,%f " % (verts[i], verts[i+1]))
         self.out.write("' />\n")
     

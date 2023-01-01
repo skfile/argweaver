@@ -143,7 +143,7 @@ class Timer:
         self.streams.append((stream, maxdepth))
     
     def removeStream(self, stream):
-        self.streams = filter(lambda x: x[0] != stream, self.streams)
+        self.streams = [x for x in self.streams if x[0] != stream]
 
     def suppress(self):
         """Calling this function will suppress timer output messages until 
@@ -199,7 +199,7 @@ def error(text, offset=0):
 
 
 def note(*text):
-    print >>notefile(), " ".join(text)
+    print(" ".join(text), file=notefile())
 
 def noteflush():
     return notfile().flush()

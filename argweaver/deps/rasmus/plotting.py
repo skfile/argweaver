@@ -59,7 +59,7 @@ class ColorMap:
         """Returns values in [0, 1]"""
     
         # determine where color falls in table
-        for i in xrange(len(self.table)):
+        for i in range(len(self.table)):
             if value <= self.table[i][0]:
                 break
         if i > 0:
@@ -216,8 +216,8 @@ def heatmap(matrix, width=20, height=20, colormap=None, filename=None,
     s.beginSvg(ncols*width + 2*xmargin, nrows*height + 2*ymargin)
     
     # draw matrix
-    for i in xrange(nrows):
-        for j in xrange(ncols):
+    for i in range(nrows):
+        for j in range(ncols):
 
             if mincutoff and matrix[i][j] < mincutoff: continue
             if maxcutoff and matrix[i][j] > maxcutoff: continue
@@ -234,8 +234,8 @@ def heatmap(matrix, width=20, height=20, colormap=None, filename=None,
         fontwidth = 7/11.0
         
         textsize = []
-        for i in xrange(nrows):
-            for j in xrange(ncols):
+        for i in range(nrows):
+            for j in range(ncols):
 
                 if mincutoff and matrix[i][j] < mincutoff: continue
                 if maxcutoff and matrix[i][j] > maxcutoff: continue
@@ -248,8 +248,8 @@ def heatmap(matrix, width=20, height=20, colormap=None, filename=None,
 
 
         yoffset = int(ydir == -1)
-        for i in xrange(nrows):
-            for j in xrange(ncols):
+        for i in range(nrows):
+            for j in range(ncols):
 
                 if mincutoff and matrix[i][j] < mincutoff: continue
                 if maxcutoff and matrix[i][j] > maxcutoff: continue
@@ -270,7 +270,7 @@ def heatmap(matrix, width=20, height=20, colormap=None, filename=None,
         if rlabelsPadding is None:
             rlabelsPadding = labelPadding
         
-        for i in xrange(nrows):
+        for i in range(nrows):
             x = xstart - xdir*rlabelsPadding
             y = ystart + roffset + ydir*i*height - labelSpacing/2.
             s.text(rlabels[i], x, y, height-labelSpacing, anchor=ranchor,
@@ -283,7 +283,7 @@ def heatmap(matrix, width=20, height=20, colormap=None, filename=None,
         if clabelsPadding is None:
             clabelsPadding = labelPadding
         
-        for j in xrange(ncols):
+        for j in range(ncols):
             x = xstart + coffset + xdir*j*width - labelSpacing/2.
             y = ystart - ydir*clabelsPadding
             s.text(clabels[j], x, y, width-labelSpacing, anchor=canchor,

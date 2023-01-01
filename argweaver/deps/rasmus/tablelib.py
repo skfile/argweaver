@@ -40,10 +40,10 @@ Table can also handle custom types.  Custom types must do the following
 
 # python libs
 import copy
-from itertools import chain, imap, izip
+from itertools import chain
 import os
 from sqlite3 import dbapi2 as sqlite
-from StringIO import StringIO
+from io import StringIO
 import sys
 
 # rasmus libs
@@ -132,9 +132,9 @@ _type_definitions = [
     ["string", str],
     ["unknown", str],  # backwards compatiable name
     ["str",    str],   # backwards compatiable name
-    ["string", unicode],
+    ["string", str],
     ["int",    int],
-    ["int",    long],
+    ["int",    int],
     ["float",  float],
     ["bool",   bool],
 ]
@@ -188,7 +188,7 @@ class Table (list):
         try:
             # use first row to guess data style
             rows = iter(rows)
-            first_row = rows.next()
+            first_row = next(rows)
         except StopIteration:
             # No data given
             return
@@ -200,20 +200,20 @@ class Table (list):
                 self.headers = sorted(first_row.keys())
 
             # add data
-            self.extend(imap(dict, chain([first_row], rows)))
+            self.extend(map(dict, chain([first_row], rows)))
 
         elif isinstance(first_row, (list, tuple)):
             # data is a list of lists
             # use first row to determine headers
             if self.nheaders == 0:
                 if self.headers is None:
-                    self.headers = range(len(first_row))
+                    self.headers = list(range(len(first_row)))
                 rows = chain([first_row], rows)
             else:
                 self.headers = list(first_row)
 
             # add data
-            self.extend(dict(zip(self.headers, row)) for row in rows)
+            self.extend(dict(list(zip(self.headers, row))) for row in rows)
 
         # guess any types not specified
         if len(self) > 0:
@@ -318,7 +318,7 @@ class Table (list):
                         continue
                     else:
                         # default headers are numbers
-                        self.headers = range(len(tokens))
+                        self.headers = list(range(len(tokens)))
                 assert len(tokens) == len(self.headers), tokens
 
                 # populate types
@@ -327,7 +327,7 @@ class Table (list):
                     if self._tmptypes:
                         # use explicit types
                         assert len(self._tmptypes) == len(self.headers)
-                        self.types = dict(zip(self.headers, self._tmptypes))
+                        self.types = dict(list(zip(self.headers, self._tmptypes)))
                     else:
                         # default types
                         if guess_types:
@@ -340,7 +340,7 @@ class Table (list):
 
                 # parse data
                 row = {}
-                for header, token in izip(self.headers, tokens):
+                for header, token in zip(self.headers, tokens):
                     type_object = self.types[header]
                     if type_object is bool:
                         type_object = str2bool
@@ -349,7 +349,7 @@ class Table (list):
                 # yield completed row
                 yield row
 
-        except Exception, e:
+        except Exception as e:
             # report error in parsing input file
             raise TableException(str(e), self.filename, lineno)
 
@@ -468,8 +468,8 @@ class Table (list):
         self.comments.append(directive)
 
         if directive == DIR_TYPES:
-            self._tmptypes = map(
-                parse_type, rest.rstrip('\n').split(self.delim))
+            self._tmptypes = list(map(
+                parse_type, rest.rstrip('\n').split(self.delim)))
             return True
         else:
             return False
@@ -527,7 +527,7 @@ class Table (list):
 
         # add data
         if data is not None:
-            for i in xrange(len(self)):
+            for i in range(len(self)):
                 self[i][header] = data[i]
 
     def remove_col(self, *cols):
@@ -572,7 +572,7 @@ class Table (list):
             clabels = copy.copy(self.headers)
             clabels.remove(rowheader)
         else:
-            rlabels = range(len(self))
+            rlabels = list(range(len(self)))
             clabels = copy.copy(self.headers)
 
         # get data
@@ -619,7 +619,7 @@ class Table (list):
         # determine headers of new table
         if headers is None:
             # try order new headers the same way as old headers
-            headers = first_row.keys()
+            headers = list(first_row.keys())
             lookup = util.list2lookup(self.headers)
             top = len(headers)
             headers.sort(key=lambda x: (lookup.get(x, top), x))
@@ -715,7 +715,7 @@ class Table (list):
         for row in self:
             keys2 = util.mget(row, keys)
             ptr = lookup
-            for i in xrange(len(keys2) - 1):
+            for i in range(len(keys2) - 1):
                 ptr = lookup[keys2[i]]
             if not uselast and keys2[-1] in ptr:
                 raise Exception("duplicate key '%s'" % str(keys2[-1]))
@@ -729,7 +729,7 @@ class Table (list):
 
         # determine rows and cols
         if rows is None:
-            rows = range(len(self))
+            rows = list(range(len(self)))
 
         if cols is None:
             cols = self.headers
@@ -860,12 +860,12 @@ def histtab(items, headers=None, item="item", count="count", percent="percent",
 
     h = util.hist_dict(items)
     tab = Table(headers=headers)
-    tot = float(sum(h.itervalues()))
-    hist_items = h.items()
+    tot = float(sum(h.values()))
+    hist_items = list(h.items())
 
     if cols is not None:
         for key, val in hist_items:
-            row = dict(zip(cols, key))
+            row = dict(list(zip(cols, key)))
             row[count] = val
             tab.append(row)
     else:
@@ -899,7 +899,7 @@ def join_tables(*args, **kwargs):
         keys = tab.cget(key)
         lookups = [tab.lookup(key)]
     else:
-        keys = map(key, tab)
+        keys = list(map(key, tab))
         lookup = {}
         for row in tab:
             lookup[key(row)] = row
@@ -919,7 +919,7 @@ def join_tables(*args, **kwargs):
 
             lookups.append(lookup)
 
-    keys = filter(lambda x: x in keyset, keys)
+    keys = [x for x in keys if x in keyset]
 
     # build new table
     if "headers" not in kwargs:
@@ -969,8 +969,8 @@ def sqlget(dbfile, query, maxrows=None, headers=None, headernum=False):
     if maxrows is not None:
         lst = []
         try:
-            for i in xrange(maxrows):
-                lst.append(cur.next())
+            for i in range(maxrows):
+                lst.append(next(cur))
         except StopIteration:
             pass
         tab = Table(lst, headers=headers)
@@ -1017,7 +1017,7 @@ def sql_create_table(cur, table_name, tab, overwrite=True):
     for header in tab.headers:
         t = tab.types[header]
 
-        if issubclass2(t, basestring):
+        if issubclass2(t, str):
             cols.append("%s TEXT" % header)
         elif issubclass2(t, int):
             cols.append("%s INTEGER" % header)
@@ -1056,7 +1056,7 @@ def sqlput(dbfile, table_name, tab, overwrite=True, create=True):
 
         try:
             # force a reading of the headers
-            row = it.next()
+            row = next(it)
             rows = chain([row], it)
         except StopIteration:
             rows = []
@@ -1077,7 +1077,7 @@ def sqlput(dbfile, table_name, tab, overwrite=True, create=True):
     for header in tab.headers:
         t = tab.types[header]
 
-        if issubclass2(t, basestring) or not (
+        if issubclass2(t, str) or not (
                 issubclass2(t, int) or
                 issubclass2(t, float) or
                 issubclass2(t, bool)):
@@ -1109,7 +1109,7 @@ def matrix2table(mat, rlabels=None, clabels=None, rowheader="rlabels"):
     use table.get_matrix()  to convert back to a matrix
     """
     if clabels is None:
-        clabels = range(len(mat[0]))
+        clabels = list(range(len(mat[0])))
         nheaders = 0
     else:
         nheaders = 1
@@ -1126,7 +1126,7 @@ def matrix2table(mat, rlabels=None, clabels=None, rowheader="rlabels"):
         else:
             row2 = {}
 
-        for j in xrange(len(mat[i])):
+        for j in range(len(mat[i])):
             row2[clabels[j]] = mat[i][j]
 
         tab.append(row2)

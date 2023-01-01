@@ -11,7 +11,7 @@ class SitesDB (object):
         self._names = None
 
     def connect(self, filename):
-        if isinstance(filename, basestring):
+        if isinstance(filename, str):
             self.con = sqlite.connect(filename, isolation_level="DEFERRED")
         else:
             self.con = filename
@@ -28,16 +28,16 @@ class SitesDB (object):
         return self.con.execute(*args, **kwargs)
 
     def init_tables(self):
-        self.con.execute(u"""CREATE TABLE IF NOT EXISTS Sites (
+        self.con.execute("""CREATE TABLE IF NOT EXISTS Sites (
                              chrom TEXT,
                              pos INTEGER,
                              col TEXT,
                              UNIQUE(chrom, pos) ON CONFLICT REPLACE);
                              """)
-        self.con.execute(u"""CREATE INDEX IF NOT EXISTS IdxSites
+        self.con.execute("""CREATE INDEX IF NOT EXISTS IdxSites
                              ON Sites (chrom, pos);""")
 
-        self.con.execute(u"""CREATE TABLE IF NOT EXISTS SitesSequences (
+        self.con.execute("""CREATE TABLE IF NOT EXISTS SitesSequences (
                              name TEXT,
                              seq_order INTEGER)""")
 
@@ -66,7 +66,7 @@ class SitesDB (object):
 
     def add_sites_file(self, filename):
         it = argweaver.iter_sites(filename)
-        header = it.next()
+        header = next(it)
         self.add_seq_names(header["names"])
 
         self.add_sites(header["chrom"], it)
@@ -101,7 +101,7 @@ class ArgDB (object):
         self._names = None
 
     def connect(self, filename):
-        if isinstance(filename, basestring):
+        if isinstance(filename, str):
             self.con = sqlite.connect(filename, isolation_level="DEFERRED")
         else:
             self.con = filename
@@ -118,7 +118,7 @@ class ArgDB (object):
         return self.con.execute(*args, **kwargs)
 
     def init_tables(self):
-        self.con.execute(u"""CREATE TABLE IF NOT EXISTS ArgTrees (
+        self.con.execute("""CREATE TABLE IF NOT EXISTS ArgTrees (
                              sample INTEGER,
                              chrom TEXT,
                              start INTEGER,
@@ -127,10 +127,10 @@ class ArgDB (object):
                              UNIQUE(sample, chrom, start, end)
                                  ON CONFLICT REPLACE);
                              """)
-        self.con.execute(u"""CREATE INDEX IF NOT EXISTS IdxArgTrees
+        self.con.execute("""CREATE INDEX IF NOT EXISTS IdxArgTrees
                              ON ArgTrees (sample, chrom, start);""")
 
-        self.con.execute(u"""CREATE TABLE IF NOT EXISTS ArgSprs (
+        self.con.execute("""CREATE TABLE IF NOT EXISTS ArgSprs (
                              sample INTEGER,
                              chrom TEXT,
                              pos INTEGER,
@@ -140,10 +140,10 @@ class ArgDB (object):
                              coal_time FLOAT,
                              UNIQUE(sample, chrom, pos) ON CONFLICT REPLACE);
                              """)
-        self.con.execute(u"""CREATE INDEX IF NOT EXISTS IdxArgSprs
+        self.con.execute("""CREATE INDEX IF NOT EXISTS IdxArgSprs
                              ON ArgSprs (sample, chrom, pos);""")
 
-        self.con.execute(u"""CREATE TABLE IF NOT EXISTS ArgSequences (
+        self.con.execute("""CREATE TABLE IF NOT EXISTS ArgSequences (
                              name TEXT,
                              seq_order INTEGER)""")
 
@@ -172,9 +172,9 @@ class ArgDB (object):
 
     def add_smc_file(self, filename, sample=0):
         it = argweaver.iter_smc_file(filename)
-        header = it.next()
+        header = next(it)
         self.add_seq_names(header["names"])
-        region = it.next()
+        region = next(it)
         self.add_smc(region["chrom"], it, sample=sample)
 
     def add_smc(self, chrom, items, sample=0):

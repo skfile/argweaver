@@ -128,7 +128,7 @@ class Exporter (object):
 
             # pass back arguments
             # used for pointers to arrays
-            for i, size in sizes.iteritems():
+            for i, size in sizes.items():
                 args[i][:] = cargs[i][:sizes[i]]
 
             return ret
@@ -170,5 +170,5 @@ def load_library(path, lib):
 
     # Display import errors.
     for error in errors:
-        print >>sys.stderr, error
+        print(error, file=sys.stderr)
     return None

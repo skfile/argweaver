@@ -7,14 +7,14 @@
 # python imports
 import sys
 import os
-from itertools import izip
+
 
 # rasmus imports
 from rasmus import util
 
 # seqlib imports
 from . import seqlib
-from seqlib import SeqDict
+from .seqlib import SeqDict
 
 
 
@@ -69,7 +69,7 @@ class FastaDict (SeqDict):
             names = self.names
         
         for key in names:
-            print >>out, ">" + key
+            print(">" + key, file=out)
             util.printwrap(self[key], width, out=out)
     
     
@@ -136,8 +136,8 @@ def write_fasta_ordered(filename, names, seqs, width=None):
     
     out = util.open_stream(filename, "w")
     
-    for name, seq in izip(names, seqs):
-        print >>out, ">%s" % name
+    for name, seq in zip(names, seqs):
+        print(">%s" % name, file=out)
         util.printwrap(seq, width, out=out)
 
 
@@ -170,7 +170,7 @@ def _revcomp(seq):
     """Reverse complement a sequence"""
     
     seq2 = []
-    for i in xrange(len(seq)-1, -1, -1):
+    for i in range(len(seq)-1, -1, -1):
         seq2.append(_comp[seq[i]])
     return "".join(seq2)
 

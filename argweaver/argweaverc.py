@@ -521,7 +521,7 @@ def argweaver_forward_algorithm(arg, seqs, rho=1.5e-8,
         trees, names = arg2ctrees(arg, times)
 
     seqs2 = [seqs[node] for node in names]
-    for name in seqs.keys():
+    for name in list(seqs.keys()):
         if name not in names:
             seqs2.append(seqs[name])
     seqlen = len(seqs2[0])
@@ -564,7 +564,7 @@ def sample_thread(arg, seqs, rho=1.5e-8, mu=2.5e-8, popsize=1e4,
 
     seqs2 = [seqs[name] for name in names]
 
-    new_name = [x for x in seqs.keys() if x not in names][0]
+    new_name = [x for x in list(seqs.keys()) if x not in names][0]
     names.append(new_name)
     seqs2.append(seqs[new_name])
     seqlen = len(seqs2[0])
@@ -643,7 +643,7 @@ def sample_arg(seqs, ntimes=20, rho=1.5e-8, mu=2.5e-8, popsizes=1e4,
 
     names = []
     seqs2 = []
-    for name, seq in seqs.items():
+    for name, seq in list(seqs.items()):
         names.append(name)
         seqs2.append(seq)
 
@@ -692,7 +692,7 @@ def resample_arg(arg, seqs, ntimes=20, rho=1.5e-8, mu=2.5e-8, popsizes=1e4,
     seqs2 = [seqs[name] for name in names]
     leaves = set(names)
     names = list(names)
-    for name, seq in seqs.items():
+    for name, seq in list(seqs.items()):
         if name not in leaves:
             names.append(name)
             seqs2.append(seq)
@@ -737,7 +737,7 @@ def sample_all_arg(seqs, ntimes=20, rho=1.5e-8, mu=2.5e-8, popsizes=1e4,
         util.tic("convert arg")
 
     arg = argweaver.make_trunk_arg(
-        0, len(seqs.values()[0]), name=seqs.keys()[0])
+        0, len(list(seqs.values())[0]), name=list(seqs.keys())[0])
     trees, names = arg2ctrees(arg, times)
     if verbose:
         util.toc()
@@ -746,7 +746,7 @@ def sample_all_arg(seqs, ntimes=20, rho=1.5e-8, mu=2.5e-8, popsizes=1e4,
     # and add all other sequences not in arg yet
     seqs2 = [seqs[name] for name in names]
     leaves = set(names)
-    for name, seq in seqs.items():
+    for name, seq in list(seqs.items()):
         if name not in leaves:
             names.append(name)
             seqs2.append(seq)
@@ -845,7 +845,7 @@ def resample_climb_arg(arg, seqs, ntimes=20, rho=1.5e-8, mu=2.5e-8,
     # get sequences in same order
     # and add all other sequences not in arg yet
     leaves = set(names)
-    for name, seq in seqs.items():
+    for name, seq in list(seqs.items()):
         if name not in leaves:
             names.append(name)
     seqs2, nseqs, seqlen = seqs2cseqs(seqs, names)
@@ -993,7 +993,7 @@ def resample_arg_region(arg, seqs, region_start, region_end,
     # get sequences in same order
     # and add all other sequences not in arg yet
     leaves = set(names)
-    for name, seq in seqs.items():
+    for name, seq in list(seqs.items()):
         if name not in leaves:
             names.append(name)
     seqs2, nseqs, seqlen = seqs2cseqs(seqs, names)
@@ -1027,7 +1027,7 @@ def resample_arg_regions(arg, seqs, niters, width=1000,
                          ntimes=20, rho=1.5e-8, mu=2.5e-8,
                          popsize=1e4, times=None, carg=False,
                          verbose=False):
-    seqlen = len(seqs.values()[0])
+    seqlen = len(list(seqs.values())[0])
 
     if is_carg(arg):
         trees, names = arg

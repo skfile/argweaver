@@ -89,7 +89,7 @@ def connected_components(components):
 
     # yield unique sets
     done = set()
-    for s in sets.itervalues():
+    for s in sets.values():
         if s.root() not in done:
             done.add(s.root())
             yield s.members()
@@ -109,20 +109,20 @@ if __name__ == "__main__":
 
         set1.add(1)
         set1.add(2)
-        print len(set1), 1 in set1, set1.has(-1)
+        print(len(set1), 1 in set1, set1.has(-1))
         set2.add(3)
         set2.add(4)
         set2.add(5)    
-        print len(set2)
+        print(len(set2))
         set3.add(5)
         set3.add(6)
         set3.add(7)
-        print len(set3)
-        print set1.same(set2)
+        print(len(set3))
+        print(set1.same(set2))
         set1.union(set2)
-        print set1.same(set2)
+        print(set1.same(set2))
         
         set1.union(set3)
-        print set1.members()
-        print len(set1), len(set2)
+        print(set1.members())
+        print(len(set1), len(set2))
 

@@ -73,7 +73,7 @@ write_smc
 #=============================================================================
 # constants
 
-PROGRAM_NAME = u"argweaver"
+PROGRAM_NAME = "argweaver"
 PROGRAM_VERSION_MAJOR = 0
 PROGRAM_VERSION_MINOR = 8
 PROGRAM_VERSION_RELEASE = 1
@@ -155,7 +155,7 @@ def get_nlineages(tree, times):
 
     else:
         ages = treelib.get_tree_ages(tree)
-        for node, age in ages.items():
+        for node, age in list(ages.items()):
             ages[node] = min(times, key=lambda x: abs(x - age))
 
         nbranches = [0 for i in range(len(times))]
@@ -328,9 +328,9 @@ def get_basal_length(tree, times, node=None, time=None):
 
 def is_variant(seqs, pos):
     """Returns True if site 'pos' in align 'seqs' is polymorphic"""
-    seqs = seqs.values()
+    seqs = list(seqs.values())
     c = seqs[0][pos]
-    for i in xrange(1, len(seqs)):
+    for i in range(1, len(seqs)):
         if seqs[i][pos] != c:
             return True
     return False
@@ -419,7 +419,7 @@ def open_stream(filename, mode="r", compress='gzip'):
     """Open a stream and auto-detect whether file is compressed (*.gz)"""
 
     # auto-detect compressed filenames
-    if isinstance(filename, basestring) and filename.endswith(".gz"):
+    if isinstance(filename, str) and filename.endswith(".gz"):
         if compress == 'gzip':
             return gzip_stream.open(filename, mode)
         elif compress == 'bgzip':
@@ -608,7 +608,7 @@ def iter_sites(filename):
         elif line.startswith("REGION") or line.startswith("#REGION"):
             tokens = line.split("\t")
             header["chrom"] = tokens[1]
-            header["region"] = map(int, tokens[2:])
+            header["region"] = list(map(int, tokens[2:]))
 
         elif line.startswith("RANGE") or line.startswith("#RANGE"):
             raise Exception("deprecated RANGE line, use REGION instead")
@@ -631,7 +631,7 @@ def read_sites(filename, region=None):
     """Read a sites file"""
 
     reader = iter_sites(filename)
-    header = reader.next()
+    header = next(reader)
 
     sites = Sites(names=header["names"], chrom=header["chrom"],
                   region=header["region"])
@@ -670,9 +670,9 @@ def seqs2sites(seqs, chrom=None, region=None, start=None):
     if region is None:
         region = [start, start + seqs.alignlen() - 1]
 
-    sites = Sites(names=seqs.keys(), chrom=chrom, region=region)
+    sites = Sites(names=list(seqs.keys()), chrom=chrom, region=region)
 
-    for i in xrange(0, seqs.alignlen()):
+    for i in range(0, seqs.alignlen()):
         if is_variant(seqs, i):
             col = "".join(seqs[name][i] for name in seqs.names)
             sites.append(start + i, col)
@@ -717,7 +717,7 @@ def find_high_freq_allele(col):
     counts = defaultdict(lambda: 0)
     for a in col:
         counts[a] += 1
-    return max(counts.keys(), key=lambda x: counts[x])
+    return max(list(counts.keys()), key=lambda x: counts[x])
 
 
 def find_pair_allele_freqs(col1, col2):
@@ -736,7 +736,7 @@ def find_pair_allele_freqs(col1, col2):
         x[(a, b)] += 1
 
     n = float(len(col1))
-    for k, v in x.items():
+    for k, v in list(x.items()):
         x[k] = v / n
 
     return x
@@ -1004,7 +1004,7 @@ def add_arg_thread(arg, new_name, thread, recombs):
 
         if parent:
             if parent.age < time:
-                print(leaves, parent.age, time, ignore)
+                print((leaves, parent.age, time, ignore))
                 tree = arg.get_marginal_tree(pos-.5).get_tree()
                 tree.write()
                 treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -1055,7 +1055,7 @@ def add_arg_thread(arg, new_name, thread, recombs):
 
             if thread[rpos][1] != thread[rpos+1][1]:
                 if rtime > min(thread[rpos][1], thread[rpos+1][1]):
-                    print(">>", rtime, thread[rpos], thread[rpos+1])
+                    print((">>", rtime, thread[rpos], thread[rpos+1]))
                     treelib.draw_tree_names(
                         arg.get_marginal_tree(rpos-.5).get_tree(),
                         maxlen=8, minlen=8)
@@ -1217,7 +1217,7 @@ def arg_lca(arg, leaves, time, pos, ignore=None):
 
         if parent:
             if parent.age < time:
-                print(leaves, parent.age, time)
+                print((leaves, parent.age, time))
                 tree = arg.get_marginal_tree(pos-.5).get_tree()
                 tree.write()
                 treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -1283,7 +1283,7 @@ def iter_arg_sprs(arg, start=None, end=None):
     last_tree = None
     for block, tree_full in arglib.iter_local_trees(arg, start, end):
         if last_tree_full:
-            recomb = (x for x in tree_full if x.pos == block[0]).next()
+            recomb = next((x for x in tree_full if x.pos == block[0]))
             spr = find_recomb_coal(tree_full, last_tree_full,
                                    recomb_name=recomb.name)
         else:
@@ -1553,11 +1553,11 @@ def calc_transition_probs_switch(tree, last_tree, recomb_name,
                     exp(- sum(time_steps[m] * (nbranches[m] + 1
                               - (1 if m < last_parent_age else 0))
                               / (2.0 * popsizes[m])
-                              for m in xrange(k, b))))
+                              for m in range(k, b))))
 
             # normalize row to ensure they add up to one
             tot = sum(transprob[i])
-            for j in xrange(len(states2)):
+            for j in range(len(states2)):
                 x = transprob[i][j]
                 if tot > 0.0 and x > 0.0:
                     transprob[i][j] = log(x / tot)
@@ -1716,7 +1716,7 @@ def est_arg_popsizes(arg, times=None, popsize_mu=1e4, popsize_sigma=.5e4):
             if len(get_local_children(node, recomb_pos-eps, local)) == 2]
 
         coals.sort()
-        nlineages = range(nleaves, 0, -1)
+        nlineages = list(range(nleaves, 0, -1))
         assert len(nlineages) == len(coals)
 
         # subtract broken branch
@@ -1726,7 +1726,7 @@ def est_arg_popsizes(arg, times=None, popsize_mu=1e4, popsize_sigma=.5e4):
             nlineages[i] -= 1
 
         # get average number of branches in the time interval
-        data = zip(coals, nlineages)
+        data = list(zip(coals, nlineages))
         for t in times[1:]:
             data.append((t, "time step"))
         data.sort()

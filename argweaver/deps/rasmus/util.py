@@ -18,7 +18,7 @@ import math
 import os
 import re
 import sys
-from itertools import imap, izip
+
 from collections import defaultdict
 
 
@@ -52,7 +52,7 @@ class Bundle (dict):
     1
     """
     def __init__(self, **variables):
-        for key, val in variables.iteritems():
+        for key, val in variables.items():
             setattr(self, key, val)
             dict.__setitem__(self, key, val)
 
@@ -108,17 +108,17 @@ class Dict (dict):
         def walk(node, path):
             if node.dim == 1:
                 for i in node:
-                    print >>out, "  ",
+                    print("  ", end=' ', file=out)
                     for j in path:
-                        print str(j) + ", ",
-                    print >>out, i, ":", node[i]
+                        print(str(j) + ", ", end=' ')
+                    print(i, ":", node[i], file=out)
             else:
                 for i in node:
                     walk(node[i], path + [i])
 
-        print >>out, "< DictMatrix "
+        print("< DictMatrix ", file=out)
         walk(self, [])
-        print >>out, ">"
+        print(">", file=out)
 
 
 class PushIter (object):
@@ -132,12 +132,12 @@ class PushIter (object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """Returns the next item in the iteration stream"""
         if len(self._queue) > 0:
             return self._queue.pop()
         else:
-            return self._it.next()
+            return next(self._it)
 
     def push(self, item):
         """Push a new item onto the front of the iteration stream"""
@@ -146,7 +146,7 @@ class PushIter (object):
     def peek(self, default=None):
         """Return the next item in the iteration stream without poping it"""
         try:
-            next = self.next()
+            next = next(self)
         except StopIteration:
             return default
 
@@ -272,10 +272,10 @@ def revdict(dic, allowdups=False):
     """
     dic2 = {}
     if allowdups:
-        for key, val in dic.iteritems():
+        for key, val in dic.items():
             dic2[val] = key
     else:
-        for key, val in dic.iteritems():
+        for key, val in dic.items():
             assert key not in dic2, "duplicate value '%s' in dict" % val
             dic2[val] = key
 
@@ -294,7 +294,7 @@ def mapdict(dic, key=lambda x: x, val=lambda x: x):
     Create a new dict where keys and values are mapped.
     """
     dic2 = {}
-    for k, v in dic.iteritems():
+    for k, v in dic.items():
         dic2[key(k)] = val(v)
     return dic2
 
@@ -307,7 +307,7 @@ def mapwindow(func, size, lst):
     lstlen = len(lst)
     radius = int(size // 2)
 
-    for i in xrange(lstlen):
+    for i in range(lstlen):
         radius2 = min(i, lstlen - i - 1, radius)
         lst2.append(func(lst[i-radius2:i+radius2+1]))
 
@@ -414,7 +414,7 @@ def mapapply(funcs, lst):
     """
     Apply each function in 'funcs' to one element in 'lst'
     """
-    return [func(item) for func, item in izip(funcs, lst)]
+    return [func(item) for func, item in zip(funcs, lst)]
 
 
 def cumsum(vals):
@@ -471,8 +471,8 @@ def make_matrix(nrows, ncols, val=0):
     """
     Create a new matrix with 'nrows' rows and 'ncols' columns.
     """
-    return [[val for i in xrange(ncols)]
-            for j in xrange(nrows)]
+    return [[val for i in range(ncols)]
+            for j in range(nrows)]
 
 
 def transpose(mat):
@@ -481,11 +481,11 @@ def transpose(mat):
 
     Works better than zip() in that rows are lists not tuples
     """
-    assert equal(* map(len, mat)), "rows are not equal length"
+    assert equal(* list(map(len, mat))), "rows are not equal length"
 
     mat2 = []
 
-    for j in xrange(len(mat[0])):
+    for j in range(len(mat[0])):
         row2 = []
         mat2.append(row2)
         for row in mat:
@@ -501,9 +501,9 @@ def submatrix(mat, rows=None, cols=None):
     Rows and columns will appear in the order as indicated in 'rows' and 'cols'
     """
     if rows is None:
-        rows = xrange(len(mat))
+        rows = range(len(mat))
     if cols is None:
-        cols = xrange(len(mat[0]))
+        cols = range(len(mat[0]))
 
     mat2 = []
 
@@ -527,11 +527,11 @@ def map2(func, *matrix):
     """
     matrix2 = []
 
-    for i in xrange(len(matrix[0])):
+    for i in range(len(matrix[0])):
         row2 = []
         matrix2.append(row2)
 
-        for j in xrange(len(matrix[0][i])):
+        for j in range(len(matrix[0][i])):
             args = [x[i][j] for x in matrix]
             row2.append(func(* args))
 
@@ -541,13 +541,13 @@ def map2(func, *matrix):
 def min2(matrix):
     """Finds the minimum of a 2D list or matrix
     """
-    return min(imap(min, matrix))
+    return min(map(min, matrix))
 
 
 def max2(matrix):
     """Finds the maximum of a 2D list or matrix
     """
-    return max(imap(max, matrix))
+    return max(map(max, matrix))
 
 
 def range2(width, height):
@@ -556,8 +556,8 @@ def range2(width, height):
        Thus list(range2(3, 2)) returns
         [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1)]
     """
-    for i in xrange(width):
-        for j in xrange(height):
+    for i in range(width):
+        for j in range(height):
             yield i, j
 
 
@@ -629,14 +629,14 @@ def find(func, *lsts):
     if len(lsts) == 1:
         # simple case, one list
         lst = lsts[0]
-        for i in xrange(len(lst)):
+        for i in range(len(lst)):
             if func(lst[i]):
                 pos.append(i)
     else:
         # multiple lists given
-        assert equal(* map(len, lsts)), "lists are not same length"
+        assert equal(* list(map(len, lsts))), "lists are not same length"
 
-        for i in xrange(len(lsts[0])):
+        for i in range(len(lsts[0])):
             if func(* [x[i] for x in lsts]):
                 pos.append(i)
 
@@ -770,7 +770,7 @@ def argmax(lst, key=lambda x: x):
 
     it = iter(lst)
     top = 0
-    topval = key(it.next())
+    topval = key(next(it))
     for i, item in enumerate(it, 1):
         val = key(item)
         if val > topval:
@@ -789,7 +789,7 @@ def argmin(lst, key=lambda x: x):
     """
     it = iter(lst)
     low = 0
-    lowval = key(it.next())
+    lowval = key(next(it))
     for i, item in enumerate(it, 1):
         val = key(item)
         if val < lowval:
@@ -938,7 +938,7 @@ def compose(*funcs):
     compose(f,g,h,i)(x) <==> f(g(h(i(x))))
     """
     funcs = reversed(funcs)
-    f = funcs.next()
+    f = next(funcs)
     for g in funcs:
         f = compose2(g, f)
     return f
@@ -1007,7 +1007,7 @@ def evalstr(text):
                 strs.append(str(eval(expr, global_dict, local_dict)))
             last = x.end()
         strs.append(text[last:len(text)])
-    except Exception, e:
+    except Exception as e:
         raise Exception("evalstr: " + str(e))
 
     return "".join(strs)
@@ -1052,13 +1052,13 @@ def write_list(filename, lst):
     """Write a list of anything (ints, floats, strings, etc) to a file."""
     out = open_stream(filename, "w")
     for i in lst:
-        print >>out, i
+        print(i, file=out)
 
 
 def write_dict(filename, dct, delim="\t"):
     """Write a dictionary to a file."""
     out = open_stream(filename, "w")
-    for k, v in dct.iteritems():
+    for k, v in dct.items():
         out.write("%s%s%s\n" % (str(k), delim, str(v)))
 
 
@@ -1105,11 +1105,11 @@ def open_stream(filename, mode="r", ignore_close=True):
         is_stream = True
 
     # if filename is a string then open it
-    elif isinstance(filename, basestring):
+    elif isinstance(filename, str):
         # open URLs
         if filename.startswith("http://"):
-            import urllib2
-            stream = urllib2.urlopen(filename)
+            import urllib.request, urllib.error, urllib.parse
+            stream = urllib.request.urlopen(filename)
 
         # open stdin and stdout
         elif filename == "-":
@@ -1159,11 +1159,11 @@ class DelimReader:
     def __iter__(self):
         return self
 
-    def next(self):
-        line = self.infile.next()
+    def __next__(self):
+        line = next(self.infile)
         row = line.rstrip("\n").split(self.delim)
         if self.types:
-            return [func(x) for func, x in izip(self.types, row)]
+            return [func(x) for func, x in zip(self.types, row)]
         elif self.parse:
             return [autoparse(x) for x in row]
         else:
@@ -1279,7 +1279,7 @@ def printcols(data, width=None, spacing=1, format=default_format,
         if width is None:
             width = 75
 
-        ncols = int(width / (max(map(lambda x: len(format(x)), data))+spacing))
+        ncols = int(width / (max([len(format(x)) for x in data])+spacing))
         mat = list2matrix(data, ncols=ncols, bycols=True)
 
     # turn all entries into strings
@@ -1287,23 +1287,23 @@ def printcols(data, width=None, spacing=1, format=default_format,
 
     # overflow
     for row in matstr:
-        for j in xrange(len(row)):
+        for j in range(len(row)):
             if len(row[j]) > colwidth:
                 row[j] = row[j][:colwidth-len(overflow)] + overflow
 
     # ensure every row has same number of columns
-    maxcols = max(map(len, matstr))
+    maxcols = max(list(map(len, matstr)))
     for row in matstr:
         if len(row) < maxcols:
             row.extend([""] * (maxcols - len(row)))
 
     # find the maximum width char in each column
-    maxwidths = map(max, map2(len, zip(* matstr)))
+    maxwidths = list(map(max, map2(len, list(zip(* matstr)))))
 
     # print out matrix with whitespace padding
-    for i in xrange(len(mat)):
+    for i in range(len(mat)):
         fields = []
-        for j in xrange(len(mat[i])):
+        for j in range(len(mat[i])):
             just = justify(mat[i][j])
 
             if just == "right":
@@ -1331,9 +1331,9 @@ def list2matrix(lst, nrows=None, ncols=None, bycols=True):
     else:
         ncols = int(math.ceil(len(lst) / float(min(nrows, len(lst)))))
 
-    for i in xrange(nrows):
+    for i in range(nrows):
         mat.append([])
-        for j in xrange(ncols):
+        for j in range(ncols):
             if bycols:
                 k = i + j*nrows
             else:
@@ -1364,7 +1364,7 @@ def int2pretty(num):
     string = str(abs(num))
     parts = []
     l = len(string)
-    for i in xrange(0, l, 3):
+    for i in range(0, l, 3):
         t = l - i
         s = t - 3
         if s < 0:
@@ -1405,7 +1405,7 @@ def print_dict(dic, key=lambda x: x, val=lambda x: x,
         num = len(dic)
 
     dic = mapdict(dic, key=key, val=val)
-    items = dic.items()
+    items = list(dic.items())
 
     if order is not None:
         items.sort(key=order, reverse=reverse)
@@ -1523,7 +1523,7 @@ class IndentStream:
 def list_files(path, ext=""):
     """Returns a list of files in 'path' ending with 'ext'"""
 
-    files = filter(lambda x: x.endswith(ext), os.listdir(path))
+    files = [x for x in os.listdir(path) if x.endswith(ext)]
     files.sort()
     return [os.path.join(path, x) for x in files]
 
@@ -1564,7 +1564,7 @@ def deldir(path):
     os.path.walk(path, cleandir, "")
 
     # remove directories
-    for i in xrange(len(dirs)):
+    for i in range(len(dirs)):
         # AFS work around
         afsFiles = list_files(dirs[-i])
         for f in afsFiles:
@@ -1604,7 +1604,7 @@ def makedirs(filename):
 
 def sortindex(lst, cmp=cmp, key=None, reverse=False):
     """Returns the sorted indices of items in lst"""
-    ind = range(len(lst))
+    ind = list(range(len(lst)))
 
     if key is None:
         compare = lambda a, b: cmp(lst[a], lst[b])
@@ -1643,7 +1643,7 @@ def sort_many(lst, *others, **args):
 def invperm(perm):
     """Returns the inverse of a permutation 'perm'"""
     inv = [0] * len(perm)
-    for i in xrange(len(perm)):
+    for i in range(len(perm)):
         inv[perm[i]] = i
     return inv
 
@@ -1687,20 +1687,20 @@ def bucket_bin(item, ndivs, low, width):
 def bucket(array, ndivs=None, low=None, width=None, key=lambda x: x):
     """Group elements of 'array' into 'ndivs' lists"""
 
-    keys = map(key, array)
+    keys = list(map(key, array))
 
     # set bucket sizes
     ndivs, low, width = bucket_size(keys, ndivs, low, width)
 
     # init histogram
-    h = [[] for i in xrange(ndivs)]
+    h = [[] for i in range(ndivs)]
     x = []
 
     # bin items
     for i in array:
         if i >= low:
             h[bucket_bin(key(i), ndivs, low, width)].append(i)
-    for i in xrange(ndivs):
+    for i in range(ndivs):
         x.append(i * width + low)
     return (x, h)
 
@@ -1721,7 +1721,7 @@ def hist(array, ndivs=None, low=None, width=None):
             j = bucket_bin(i, ndivs, low, width)
             if j < ndivs:
                 h[j] += 1
-    for i in xrange(ndivs):
+    for i in range(ndivs):
         x.append(i * width + low)
     return (x, h)
 
@@ -1737,7 +1737,7 @@ def hist2(array1, array2,
     ndivs2, low2, width2 = bucket_size(array2, ndivs2, low2, width2)
 
     # init histogram
-    h = [[0] * ndivs1 for i in xrange(ndivs2)]
+    h = [[0] * ndivs1 for i in range(ndivs2)]
     labels = []
 
     for j, i in zip(array1, array2):
@@ -1777,7 +1777,7 @@ def distrib(array, ndivs=None, low=None, width=None):
 
     h = hist(array, ndivs, low, width)
     total = float(sum(h[1]))
-    return (h[0], map(lambda x: (x/total)/width, h[1]))
+    return (h[0], [(x/total)/width for x in h[1]])
 
 
 def hist_int(array):
@@ -1814,7 +1814,7 @@ def print_hist(array, ndivs=20, low=None, width=None,
     data = list(hist(array, ndivs, low=low, width=width))
 
     # find max bar
-    maxwidths = map(max, map2(compose(len, str), data))
+    maxwidths = list(map(max, map2(compose(len, str), data)))
     maxbar = cols - sum(maxwidths) - 2 * spacing
 
     # make bars
@@ -1824,7 +1824,7 @@ def print_hist(array, ndivs=20, low=None, width=None,
         bars.append("*" * int(count * maxbar / float(maxcount)))
     data.append(bars)
 
-    printcols(zip(* data), spacing=spacing, out=out)
+    printcols(list(zip(* data)), spacing=spacing, out=out)
 
 
 # import common functions from other files,
@@ -1834,7 +1834,7 @@ try:
     from rasmus.timer import *
 except ImportError:
     try:
-        from timer import *
+        from .timer import *
     except ImportError:
         pass
 
@@ -1850,6 +1850,6 @@ try:
     from rasmus.plotting import *
 except ImportError:
     try:
-        from plotting import *
+        from .plotting import *
     except ImportError:
         pass

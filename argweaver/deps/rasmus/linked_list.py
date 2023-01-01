@@ -33,7 +33,7 @@ class LinkedList (object):
         ptr = self._head
         while ptr is not None:
             yield ptr.item
-            ptr = ptr.next
+            ptr = ptr.__next__
 
     def __reversed__(self):
         """Iterate backwards over list"""
@@ -65,7 +65,7 @@ class LinkedList (object):
 
         node = self._head
         while node is not None:
-            next = node.next
+            next = node.__next__
             yield node
             node = next
 
@@ -82,14 +82,14 @@ class LinkedList (object):
         """Remove node from list"""
 
         if node.prev is not None:
-            node.prev.next = node.next
+            node.prev.next = node.__next__
         else:
             # first in list
-            self._head = node.next
+            self._head = node.__next__
             if self._head:
                 self._head.prev = None
 
-        if node.next is not None:
+        if node.__next__ is not None:
             node.next.prev = node.prev
         else:
             # last in list
@@ -177,7 +177,7 @@ class LinkedList (object):
             raise IndexError("pop from empty list")
 
         item = self._head.item
-        self._head = self._head.next
+        self._head = self._head.__next__
 
         if self._head is None:
             # list is empty
@@ -199,11 +199,11 @@ class LinkedList (object):
         # create new node
         node2 = LinkedNode(item)
         node2.prev = node
-        node2.next = node.next
+        node2.next = node.__next__
 
         # link surrounding nodes
         node.next = node2
-        if node2.next:
+        if node2.__next__:
             node2.next.prev = node2
         else:
             self._tail = node2

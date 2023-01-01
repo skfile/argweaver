@@ -209,7 +209,7 @@ def iter_combine_regions(*regionsets):
 def query_point_regions(point, regions, inc=True):
 
     ind = util.sortindex(regions, key=lambda r: r[1])
-    rind = util.mget(range(len(regions)), ind)
+    rind = util.mget(list(range(len(regions))), ind)
     regions_by_end = util.mget(regions, ind)
 
     end = util.binsearch([r[0] for r in regions], x)[1]
@@ -221,11 +221,11 @@ def query_point_regions(point, regions, inc=True):
         end = len(regions)
 
     if inc:
-        for i in xrange(start, end):
+        for i in range(start, end):
             if regions[i][0] <= x <= regions[i][1]:
                 yield regions[i]
     else:
-        for i in xrange(start, end):
+        for i in range(start, end):
             if regions[i][0] < x < regions[i][1]:
                 yield regions[i]
 
@@ -241,22 +241,22 @@ def query_regions_regions(query_regions, regions, inc=True):
 
 if __name__ == "__main__":
     
-    print "union"
-    print list(iter_union_ids([[1, 10], [2, 4], [2, 5],
-                               [12, 20], [13, 22]]))
+    print("union")
+    print(list(iter_union_ids([[1, 10], [2, 4], [2, 5],
+                               [12, 20], [13, 22]])))
 
-    print list(iter_unions([[1, 10], [2, 4], [2, 5],
-                            [12, 20], [13, 22]]))
+    print(list(iter_unions([[1, 10], [2, 4], [2, 5],
+                            [12, 20], [13, 22]])))
 
 
-    print list(groupby_unions([[1, 10], [2, 4], [2, 5],
-                               [12, 20], [13, 22]]))
+    print(list(groupby_unions([[1, 10], [2, 4], [2, 5],
+                               [12, 20], [13, 22]])))
 
-    print "intersect"
-    print list(iter_intersections( 
+    print("intersect")
+    print(list(iter_intersections( 
             [[1, 10], [2, 4], [2, 5],
-             [12, 20], [13, 22]]))
+             [12, 20], [13, 22]])))
 
-    print "union"
-    print list(query_point_regions(3, [[1, 10], [2, 4], [2, 5],
-                                       [12, 20], [13, 22]]))
+    print("union")
+    print(list(query_point_regions(3, [[1, 10], [2, 4], [2, 5],
+                                       [12, 20], [13, 22]])))

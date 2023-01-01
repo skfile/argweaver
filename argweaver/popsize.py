@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import izip
+
 from math import exp
 from math import log
 from math import sqrt
@@ -79,11 +79,11 @@ def prob_coal_counts_slow(a, b, t, n):
     """
 
     s = 0.0
-    for k in xrange(b, a+1):
+    for k in range(b, a+1):
         i = exp(-k*(k-1)*t/2.0/n) * \
             float(2*k-1)*(-1)**(k-b) / stats.factorial(b) / \
             stats.factorial(k-b) / (k+b-1) * \
-            stats.prod((b+y)*(a-y)/float(a+y) for y in xrange(k))
+            stats.prod((b+y)*(a-y)/float(a+y) for y in range(k))
         s += i
     return s
 
@@ -114,10 +114,10 @@ def prob_coal_counts(a, b, t, n):
 
     try:
         terms = []
-        C = stats.prod((b+y)*(a-y)/float(a+y) for y in xrange(b)) \
+        C = stats.prod((b+y)*(a-y)/float(a+y) for y in range(b)) \
             / float(stats.factorial(b))
         terms.append(exp(-b*(b-1)*t/2.0/n) * C)
-        for k in xrange(b+1, a+1):
+        for k in range(b+1, a+1):
             k1 = k - 1
             C = (b+k1)*(a-k1)/float(a+k1)/float(b-k) * C
             terms.append(exp(-k*k1*t/2.0/n) * (2*k-1) / float(k1+b) * C)
@@ -125,7 +125,7 @@ def prob_coal_counts(a, b, t, n):
         terms.sort(key=abs)
         return kahan_sum(terms)
     except:
-        print a, b, t, n
+        print(a, b, t, n)
         raise
 
 
@@ -152,7 +152,7 @@ def log_prob_many_coal_counts(As, Bs, t, n, Cs=None):
     if Cs is None:
         Cs = [1] * len(As)
     return sum(c * log_prob_coal_counts(a, b, t, n)
-               for a, b, c in izip(As, Bs, Cs))
+               for a, b, c in zip(As, Bs, Cs))
 
 
 #=============================================================================
@@ -180,7 +180,7 @@ def mle_prob_many_coal_counts(As, Bs, t, n0):
     As = []
     Bs = []
     Cs = []
-    for (a, b), c in counts.items():
+    for (a, b), c in list(counts.items()):
         As.append(a)
         Bs.append(b)
         Cs.append(c)
@@ -310,7 +310,7 @@ class PopsizeEstimator (object):
                 if len(get_local_children(node, recomb_pos-eps, local)) == 2]
 
             coals.sort()
-            nlineages = range(nleaves, 0, -1)
+            nlineages = list(range(nleaves, 0, -1))
             assert len(nlineages) == len(coals)
 
             # subtract broken branch
@@ -320,7 +320,7 @@ class PopsizeEstimator (object):
                 nlineages[i] -= 1
 
             # get average number of branches in the time interval
-            data = zip(coals, nlineages)
+            data = list(zip(coals, nlineages))
             for t in times[1:]:
                 data.append((t, "time step"))
             data.sort()

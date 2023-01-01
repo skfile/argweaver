@@ -4,7 +4,7 @@ Tests for various HMM calculations
 
 """
 
-from itertools import izip
+
 from math import exp
 from math import log
 
@@ -39,7 +39,7 @@ def test_trans_two():
     arg = arglib.sample_arg(k, 2*n, rho, start=0, end=length)
 
     argweaver.discretize_arg(arg, times)
-    print "recomb", arglib.get_recombs(arg)
+    print("recomb", arglib.get_recombs(arg))
 
     arg = argweaver.make_trunk_arg(0, length, "n0")
 
@@ -96,8 +96,8 @@ def test_trans_two():
 
     for i in range(len(states)):
         for j in range(len(states)):
-            print isrecomb(states[i][1])
-            print states[i], states[j], mat[i][j], log(trans(i, j))
+            print(isrecomb(states[i][1]))
+            print(states[i], states[j], mat[i][j], log(trans(i, j)))
             fequal(mat[i][j], log(trans(i, j)))
 
         # recombs add up to 1
@@ -138,7 +138,7 @@ def test_trans():
             arg.write('test/data/test_trans/%d.arg' % i)
 
     for i in range(ntests):
-        print 'arg', i
+        print('arg', i)
         arg = arglib.read_arg('test/data/test_trans/%d.arg' % i)
         argweaver.discretize_arg(arg, times)
         pos = 10
@@ -178,13 +178,13 @@ def test_trans_switch():
             arg.write('test/data/test_trans_switch/%d.arg' % i)
 
     for i in range(ntests):
-        print 'arg', i
+        print('arg', i)
         arg = arglib.read_arg('test/data/test_trans_switch/%d.arg' % i)
         argweaver.discretize_arg(arg, times)
         recombs = [x.pos for x in arg if x.event == "recomb"]
         pos = recombs[0]
         tree = arg.get_marginal_tree(pos-.5)
-        rpos, r, c = arglib.iter_arg_sprs(arg, start=pos-.5).next()
+        rpos, r, c = next(arglib.iter_arg_sprs(arg, start=pos-.5))
         spr = (r, c)
 
         if not argweaverc.assert_transition_switch_probs(
@@ -324,8 +324,8 @@ def test_forward():
     muts = arglib.sample_arg_mutations(arg, mu)
     seqs = arglib.make_alignment(arg, muts)
 
-    print "muts", len(muts)
-    print "recomb", len(arglib.get_recombs(arg))
+    print("muts", len(muts))
+    print("recomb", len(arglib.get_recombs(arg)))
 
     argweaver.discretize_arg(arg, times)
 
@@ -344,8 +344,8 @@ def test_forward():
                                                     slow=True)
     util.toc()
 
-    for i, (col1, col2) in enumerate(izip(probs1, probs2)):
-        for a, b in izip(col1, col2):
+    for i, (col1, col2) in enumerate(zip(probs1, probs2)):
+        for a, b in zip(col1, col2):
             fequal(a, b, rel=.0001)
 
 
@@ -367,4 +367,4 @@ def test_arg_joint():
     seqs = arglib.make_alignment(arg, muts)
 
     lk = argweaver.calc_joint_prob(arg, seqs, mu=mu, rho=rho, times=times)
-    print lk
+    print(lk)

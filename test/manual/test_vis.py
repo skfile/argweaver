@@ -1,13 +1,14 @@
 
 import sys, os
 import random
+import importlib
 
 try:
     import arghmm
 except ImportError:
     os.chdir("..")
     import arghmm
-reload(arghmm)
+importlib.reload(arghmm)
 
 from rasmus.common import *
 from rasmus import stats, hmm
@@ -15,7 +16,7 @@ from rasmus.testing import *
 
 from compbio import coal, arglib
 from compbio.vis import argvis
-reload(argvis)
+importlib.reload(argvis)
 
 import summon
 from summon.core import *
@@ -50,7 +51,7 @@ def draw_mapping(tree1, tree2, layout1, layout2, times, mapping):
                                        x2, y2)))
 
 def move_layout(layout, x=0, y=0):
-    for node, (nx, ny) in layout.items():
+    for node, (nx, ny) in list(layout.items()):
         layout[node] = (nx + x, ny + y)
 
 
@@ -84,7 +85,7 @@ if 1:
     win = argvis.show_tree_track(trees)
 
     nleaves = ilen(arg.leaves())
-    for i in xrange(len(trees)-1):
+    for i in range(len(trees)-1):
         block1, _tree1 = trees[i]
         block2, _tree2 = trees[i + 1]
         pos = block2[0]
@@ -124,7 +125,7 @@ if 0:
 
     # get recombs
     recombs = list(x.pos for x in arghmm.iter_visible_recombs(arg))
-    print "recomb", recombs
+    print("recomb", recombs)
 
     pos = recombs[0] + 1
     tree = arg.get_marginal_tree(pos-.5)
@@ -145,7 +146,7 @@ if 0:
     win.add_group(argvis.draw_arg(last_tree, layout))
 
     layout2 = argvis.layout_arg(tree)
-    for node, (x,y) in layout2.items():
+    for node, (x,y) in list(layout2.items()):
         layout2[node] = (x+20, y)
     
     win.add_group(argvis.draw_arg(tree, layout2))

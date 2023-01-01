@@ -290,7 +290,7 @@ def sample_arg_dsmc(k, popsize, rho, recombmap=None,
         k, popsize, rho, recombmap=recombmap,
         start=start, end=end, times=times, times2=times2,
         init_tree=init_tree, names=names, make_names=make_names)
-    tree = it.next()
+    tree = next(it)
     arg = arglib.make_arg_from_sprs(tree, it)
 
     return arg
@@ -391,7 +391,7 @@ def make_alignment(arg, mutations, infsites=False):
     mat = []
 
     muti = 0
-    for i in xrange(alnlen):
+    for i in range(alnlen):
         ancestral = "ACGT"[random.randint(0, 3)]
 
         if muti >= len(mutations) or i < int(mutations[muti][2]):
@@ -406,7 +406,7 @@ def make_alignment(arg, mutations, infsites=False):
 
             # enforce infinite sites
             if infsites:
-                mut_count = {random.sample(mut_count.items(), 1)[0][0]: 1}
+                mut_count = {random.sample(list(mut_count.items()), 1)[0][0]: 1}
 
             tree = arg.get_marginal_tree(i-.5)
             bases = {tree.root.name: ancestral}

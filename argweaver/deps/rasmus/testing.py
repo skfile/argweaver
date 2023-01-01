@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 import unittest
-from itertools import izip
+
 
 from . import util
 from . import stats
@@ -50,7 +50,7 @@ def fequal(f1, f2, rel=.0001, eabs=1e-12):
 
 
 def fequals(f1, f2, rel=.0001, eabs=1e-12):
-    for i, j in izip(f1, f2):
+    for i, j in zip(f1, f2):
         fequal(i, j, rel=rel, eabs=eabs)
 
 
@@ -79,10 +79,10 @@ def eq_sample_pmf(samples, pmf, pval=.05):
     import scipy.stats
 
     hist = util.hist_dict(samples)
-    total = sum(hist.itervalues())
+    total = sum(hist.values())
     observed = []
     expected = []
-    for sample, count in hist.iteritems():
+    for sample, count in hist.items():
         if count >= 5:
             observed.append(count)
             expected.append(pmf(sample) * total)
@@ -99,7 +99,7 @@ def pause(text="press enter to continue: "):
     """Pause until the user presses enter"""
     if _do_pause:
         sys.stderr.write(text)
-        raw_input()
+        input()
 
 
 def set_pausing(enabled=True):
@@ -116,16 +116,16 @@ def list_tests(stack=0):
     # get environment
     var = __import__("__main__").__dict__
 
-    for name, obj in var.iteritems():
+    for name, obj in var.items():
         if isinstance(obj, type) and issubclass(obj, unittest.TestCase):
             for attr in dir(obj):
                 if attr.startswith("test"):
-                    print "%s.%s" % (name, attr),
+                    print("%s.%s" % (name, attr), end=' ')
                     doc = getattr(obj, attr).__doc__
                     if doc:
-                        print "--", doc.split("\n")[0]
+                        print("--", doc.split("\n")[0])
                     else:
-                        print
+                        print()
 
 
 def test_main():

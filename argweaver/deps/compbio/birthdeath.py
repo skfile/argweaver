@@ -70,7 +70,7 @@ def prob_birth_death(genes1, genes2, t, birth, death):
     else:
         return sum(stats.choose(n,j) * stats.choose(n+i-j-1, n-1) *\
                    a**(n-j) * b**(i-j) * (1.0 - a - b)**j
-                   for j in xrange(min(n, i)+1))
+                   for j in range(min(n, i)+1))
    
 
 def birth_wait_time(t, n, T, birth, death):
@@ -137,7 +137,7 @@ def num_topology_histories(node, leaves=None):
         if node in leaves:
             return 0
         else:
-            internals = map(walk, node.children)
+            internals = list(map(walk, node.children))
             prod[0] *= stats.choose(sum(internals), internals[0])
             return 1 + sum(internals)
     walk(node)
@@ -407,7 +407,7 @@ def sample_birth_literal(n, T, birth, death):
     
     tmin = util.INF
         
-    for i in xrange(n):
+    for i in range(n):
         # require each lineage to be alive
         while True:
             t, alive = sample_birth1_literal(T, birth, death)

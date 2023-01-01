@@ -10,14 +10,14 @@
 # python libs
 import copy
 import sys
-import StringIO
+import io
 
 # rasmus libs
 try:
     from rasmus import util
     util
 except ImportError:
-    import util
+    from . import util
 try:
     from rasmus import textdraw
 except ImportError:
@@ -194,7 +194,7 @@ class Tree (object):
 
     def __iter__(self):
         """Iterate through nodes of tree"""
-        return self.nodes.itervalues()
+        return iter(self.nodes.values())
 
     def __len__(self):
         """Returns number of nodes in tree"""
@@ -409,7 +409,7 @@ class Tree (object):
 
     def leaf_names(self, node=None):
         """Returns the leaf names of the tree in order"""
-        return map(lambda x: x.name, self.leaves(node))
+        return [x.name for x in self.leaves(node)]
 
     #===============================
     # data functions
@@ -426,20 +426,20 @@ class Tree (object):
 
     def copy_node_data(self, tree):
         """Copy node data to another tree"""
-        for name, node in self.nodes.iteritems():
+        for name, node in self.nodes.items():
             if name in tree.nodes:
                 node.data = copy.copy(tree.nodes[name].data)
         self.set_default_data()
 
     def set_default_data(self):
         """Set default values in each node's data"""
-        for node in self.nodes.itervalues():
-            for key, val in self.default_data.iteritems():
+        for node in self.nodes.values():
+            for key, val in self.default_data.items():
                 node.data.setdefault(key, val)
 
     def clear_data(self, *keys):
         """Clear tree data"""
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             if len(keys) == 0:
                 node.data = {}
             else:
@@ -541,7 +541,7 @@ class Tree (object):
 
     def get_one_line_newick(self, root_data=False, writeData=None):
         """Get a presentation of the tree in a oneline string newick format"""
-        stream = StringIO.StringIO()
+        stream = io.StringIO()
         self.write(stream, oneline=True,
                    writeData=writeData, rootData=root_data)
         return stream.getvalue()
@@ -586,7 +586,7 @@ def tokenize_newick(infile):
         while True:
             yield infile.read(1)
 
-    if not isinstance(infile, basestring):
+    if not isinstance(infile, str):
         infile = iter_stream(infile)
     else:
         infile = iter(infile)
@@ -660,7 +660,7 @@ def parse_newick(infile, read_data=None, tree=None):
     try:
         while True:
             prev_token = token
-            token = tokens.next()
+            token = next(tokens)
             empty = False
 
             if token == '(':  # new branchset
@@ -855,7 +855,7 @@ def read_newick_ply(filename, readData=None, tree=None):
     tree.nodes[tree.root.name] = tree.root
 
     # test for bootstrap presence
-    for node in tree.nodes.itervalues():
+    for node in tree.nodes.values():
         if "boot" in node.data:
             tree.default_data["boot"] = 0
             break
@@ -993,7 +993,7 @@ def read_parent_tree(treefile, labelfile=None, labels=None, tree=None):
 
     elif labels is None:
         nitems = (len(lines) + 1) / 2
-        labels = map(str, range(nitems))
+        labels = list(map(str, list(range(nitems))))
 
     tree.make_root()
 
@@ -1022,7 +1022,7 @@ def read_parent_tree(treefile, labelfile=None, labels=None, tree=None):
             try:
                 tree.add_child(parent, child)
             except:
-                print i, parentid
+                print(i, parentid)
 
     # remove unused internal nodes
     labelset = set(labels)
@@ -1060,7 +1060,7 @@ def write_parent_tree(treefile, tree, labels=None):
 
     # build ptree array
     ptree = [0] * len(ids)
-    for node, idname in ids.iteritems():
+    for node, idname in ids.items():
         if node.parent is not None:
             ptree[idname] = ids[node.parent]
         else:
@@ -1082,7 +1082,7 @@ def parse_nhx_comment(comment):
 def format_nhx_comment(data):
     """Format a NHX comment"""
     return "[&&NHX:" + ":".join("%s=%s" % (k, v)
-                                for k, v in data.iteritems()) + "]"
+                                for k, v in data.items()) + "]"
 
 
 def parse_nhx_data(text):
@@ -1291,7 +1291,7 @@ def tree2graph(tree):
     for name in tree.nodes:
         mat[name] = {}
 
-    for name, node in tree.nodes.iteritems():
+    for name, node in tree.nodes.items():
         for child in node.children:
             mat[name][child.name] = child.dist
 
@@ -1380,7 +1380,7 @@ def remove_exposed_internal_nodes(tree, leaves=None):
         # wether to keep it
         stay = set()
         for leaf in tree.leaves():
-            if isinstance(leaf.name, basestring):
+            if isinstance(leaf.name, str):
                 stay.add(leaf)
 
     # post order traverse tree
@@ -1672,7 +1672,7 @@ def midpoint_root(tree):
 
             # fixup branch lengths and return
             pdist = sum(c.dist for c in tree.root.children)
-            other = filter(lambda x: x != ptr, tree.root.children)[0]
+            other = [x for x in tree.root.children if x != ptr][0]
             ptr.dist = middist - dist
             other.dist = pdist - ptr.dist
             return tree
@@ -1748,9 +1748,9 @@ def check_ages(tree, times):
                 abs(((times[node.parent] - times[node]) -
                     node.dist)/node.dist) > .001):
                 draw_tree_names(tree, maxlen=7, minlen=7)
-                util.printcols([(a.name, b) for a, b in times.items()])
-                print
-                print node.name, node.dist, times[node.parent] - times[node]
+                util.printcols([(a.name, b) for a, b in list(times.items())])
+                print()
+                print(node.name, node.dist, times[node.parent] - times[node])
                 raise Exception("negative time span")
 check_timestamps = check_ages  # backwards compatiability
 
@@ -1821,7 +1821,7 @@ def parent_table2tree(ptable, data_cols=[], convert_names=True):
             node.data[col] = val
 
     # link up parents
-    for node, parent_name in parents.iteritems():
+    for node, parent_name in parents.items():
         if parent_name == -1:
             tree.root = node
         else:
@@ -2140,7 +2140,7 @@ def layout_tree_vertical(layout, offset=None, root=0, leaves=None,
                     offset = root - ydir*layout[node][0]
                     break
 
-    for node, (x, y) in layout.iteritems():
+    for node, (x, y) in layout.items():
         layout[node] = [y, offset + ydir*x]
     return layout
 
@@ -2223,7 +2223,7 @@ def read_tree_color_map(filename):
 
     for line in infile:
         expr, red, green, blue = line.rstrip().split("\t")
-        maps.append([expr, map(float, (red, green, blue))])
+        maps.append([expr, list(map(float, (red, green, blue)))])
 
     name2color = make_expr_mapping(maps)
 
@@ -2277,7 +2277,7 @@ def draw_tree(tree, labels={}, scale=40, spacing=2, out=sys.stdout,
         if node.name in labels:
             branchlen = xchildren - x
             lines = str(labels[node.name]).split("\n")
-            labelwidth = max(map(len, lines))
+            labelwidth = max(list(map(len, lines)))
 
             labellen = min(labelwidth,
                            max(int(branchlen - 1), 0))
@@ -2312,7 +2312,7 @@ def draw_tree(tree, labels={}, scale=40, spacing=2, out=sys.stdout,
 
 def draw_tree_lens(tree, *args, **kargs):
     labels = {}
-    for node in tree.nodes.values():
+    for node in list(tree.nodes.values()):
         labels[node.name] = "%f" % node.dist
 
     draw_tree(tree, labels, *args, **kargs)
@@ -2324,7 +2324,7 @@ def draw_tree_boot_lens(tree, *args, **kargs):
         return
 
     labels = {}
-    for node in tree.nodes.values():
+    for node in list(tree.nodes.values()):
         if node.is_leaf():
             labels[node.name] = "%f" % node.dist
         else:
@@ -2339,7 +2339,7 @@ def draw_tree_boot_lens(tree, *args, **kargs):
 
 def draw_tree_names(tree, *args, **kargs):
     labels = {}
-    for node in tree.nodes.values():
+    for node in list(tree.nodes.values()):
         if not node.is_leaf():
             labels[node.name] = "%s" % node.name
 
@@ -2348,7 +2348,7 @@ def draw_tree_names(tree, *args, **kargs):
 
 def draw_tree_name_lens(tree, *args, **kargs):
     labels = {}
-    for node in tree.nodes.values():
+    for node in list(tree.nodes.values()):
         if not node.is_leaf():
             labels[node.name] = "%s " % node.name
         else:

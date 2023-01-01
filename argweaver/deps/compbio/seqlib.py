@@ -24,7 +24,7 @@ class SeqDict (dict):
     def order_names(self, aln):
         """Orders the names in the same order they appear in aln"""
         
-        lookup = util.list2lookup(aln.keys())
+        lookup = util.list2lookup(list(aln.keys()))
         self.names.sort(key=lambda x: lookup[x])
         
     
@@ -61,7 +61,7 @@ class SeqDict (dict):
         will return its length
         """
         
-        return len(self.values()[0])
+        return len(list(self.values())[0])
         
     
     # The following methods keep names in sync with dictionary keys
@@ -96,17 +96,17 @@ class SeqDict (dict):
         return iter(self.names)
     
     def values(self):
-        return [self[key] for key in self.iterkeys()]
+        return [self[key] for key in self.keys()]
     
     def itervalues(self):
         def func():
-            for key in self.iterkeys():
+            for key in self.keys():
                 yield self[key]
         return func()
         
     def iteritems(self):
         def func():
-            for key in self.iterkeys():
+            for key in self.keys():
                 yield (key, self[key])
         return func()
 
@@ -155,7 +155,7 @@ CANDIDA_CODON_TABLE["CTG"] = "S"  # originally L
 
 # make reverse codon table
 REV_CODON_TABLE = {}
-for key,val in CODON_TABLE.items():
+for key,val in list(CODON_TABLE.items()):
     REV_CODON_TABLE.setdefault(val, []).append(key)
 
 
@@ -173,8 +173,8 @@ for key,val in CODON_TABLE.items():
 #
 CODON_DEGEN = {}
 AA_DEGEN = {}
-for aa, lst in REV_CODON_TABLE.items():
-    folds = map(lambda x: len(util.unique(x)), zip(* lst))
+for aa, lst in list(REV_CODON_TABLE.items()):
+    folds = [len(util.unique(x)) for x in zip(* lst)]
     for codon in lst:
         AA_DEGEN[aa] = folds
         CODON_DEGEN[codon] = folds
@@ -320,7 +320,7 @@ def translate(dna, table=CODON_TABLE):
     
     assert len(dna) % 3 == 0, "dna sequence length is not a multiple of 3"
     
-    for i in xrange(0, len(dna), 3):
+    for i in range(0, len(dna), 3):
         codon = dna[i:i+3].upper()
         if "N" in codon:
             aa.append("X")     # unkown aa
@@ -372,7 +372,7 @@ def revcomp(seq):
     """Reverse complement a sequence"""
         
     seq2 = []
-    for i in xrange(len(seq)-1, -1, -1):
+    for i in range(len(seq)-1, -1, -1):
         seq2.append(_comp[seq[i]])
     return "".join(seq2)
 

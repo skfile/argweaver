@@ -8,12 +8,12 @@
 #=============================================================================
 # imports
 
-from __future__ import division
+
 
 # python libs
 import sys
 import random
-from itertools import izip, chain
+from itertools import chain
 from collections import defaultdict
 import heapq
 
@@ -95,7 +95,7 @@ class ARG (object):
 
     def __iter__(self):
         """Iterates over the nodes in the ARG."""
-        return self.nodes.itervalues()
+        return iter(self.nodes.values())
 
     def __len__(self):
         """Returns number of nodes in the ARG."""
@@ -224,11 +224,11 @@ class ARG (object):
         arg.nextname = self.nextname
 
         # copy all nodes
-        for name, node in self.nodes.iteritems():
+        for name, node in self.nodes.items():
             arg.nodes[name] = node.copy()
 
         # connect nodes
-        for node in self.nodes.itervalues():
+        for node in self.nodes.values():
             node2 = arg[node.name]
             for child in node.children:
                 node2.children.append(arg[child.name])
@@ -785,11 +785,11 @@ def sample_arg(k, n, rho, start=0.0, end=1.0, t=0, names=None,
         names = ["n%d" % i for i in range(k)]
     if names is None:
         lineages = set(Lineage(arg.new_node(), [(start, end)], end-start)
-                       for i in xrange(k))
+                       for i in range(k))
     else:
         lineages = set(Lineage(arg.new_node(name=names[i]),
                                [(start, end)], end-start)
-                       for i in xrange(k))
+                       for i in range(k))
     for lineage in lineages:
         lineage.node.data["ancestral"] = [(start, end)]
     recomb_parent_lineages = {}
@@ -910,10 +910,10 @@ def sample_arg(k, n, rho, start=0.0, end=1.0, t=0, names=None,
         else:
             raise Exception("unknown event '%s'" % event)
 
-    assert len(lineages) == 0, (lineages, block_counts.values())
+    assert len(lineages) == 0, (lineages, list(block_counts.values()))
 
     # fix recomb parent order, so that left is before pos and right after
-    for node, (a, b) in recomb_parent_lineages.iteritems():
+    for node, (a, b) in recomb_parent_lineages.items():
         an = lineage_parents[a]
         bn = lineage_parents[b]
         for reg in a.regions:
@@ -1069,7 +1069,7 @@ def sample_arg_smc(k, n, rho, start=0.0, end=0.0, init_tree=None,
     """
     it = sample_smc_sprs(k, n, rho, start=start, end=end, init_tree=init_tree,
                          names=names, make_names=make_names)
-    tree = it.next()
+    tree = next(it)
     arg = make_arg_from_sprs(tree, it)
 
     return arg
@@ -1107,12 +1107,12 @@ def make_arg_from_times(k, times, events, start=0, end=1,
     if make_names:
         names = ["n%d" % i for i in range(k)]
     if names is None:
-        lineages = set((arg.new_node(), 1) for i in xrange(k))
+        lineages = set((arg.new_node(), 1) for i in range(k))
     else:
-        lineages = set((arg.new_node(name=names[i]), 1) for i in xrange(k))
+        lineages = set((arg.new_node(name=names[i]), 1) for i in range(k))
 
     # process events
-    for t, event in izip(times, events):
+    for t, event in zip(times, events):
         if event == "coal":
             node = arg.add(ArgNode(arg.new_name(), age=t, event=event))
             a, b = random.sample(lineages, 2)
@@ -1665,13 +1665,13 @@ def iter_arg_sprs_simple(arg, start=None, end=None, use_leaves=False):
     Yields (recomb_pos, (rnode, rtime), (cnode, ctime))
     """
     trees = iter_local_trees(arg, start, end)
-    block, last_tree = trees.next()
+    block, last_tree = next(trees)
 
     for block, tree in trees:
 
         # find recombination node
         recomb_pos = block[0]
-        node = (x for x in tree if x.pos == recomb_pos).next()
+        node = next((x for x in tree if x.pos == recomb_pos))
         rtime = node.age
         ptr = last_tree[node.name]
         while len(ptr.children) == 1:
@@ -1744,7 +1744,7 @@ def make_arg_from_sprs(init_tree, sprs, ignore_self=False,
 
         # safety check
         if parent and parent.age < time:
-            print (pos, node, parent.age, time)
+            print((pos, node, parent.age, time))
             tree = arg.get_marginal_tree(pos).get_tree()
             tree.write()
             treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -1927,7 +1927,7 @@ def arg_lca(arg, leaves, pos, time=None, local=None):
 
         # safety check
         if parent and parent.age < time:
-            print (pos, leaves, parent.age, time)
+            print((pos, leaves, parent.age, time))
             tree = arg.get_marginal_tree(pos).get_tree()
             tree.write()
             treelib.draw_tree_names(tree, maxlen=8, minlen=8)
@@ -2218,7 +2218,7 @@ def make_alignment(arg, mutations, infinite_sites=True,
     # make align matrix
     mat = []
     muti = 0
-    for i in xrange(alnlen):
+    for i in range(alnlen):
         if muti >= len(mutations) or i < int(mutations[muti][2]):
             # no mut
             mat.append(ancestral * nleaves)
@@ -2244,16 +2244,16 @@ def make_alignment(arg, mutations, infinite_sites=True,
 
 def iter_align_splits(aln, warn=False):
     """Iterates through the splits in an alignment"""
-    names = aln.keys()
+    names = list(aln.keys())
 
-    for j in xrange(aln.alignlen()):
-        col = [x[j] for x in aln.itervalues()]
+    for j in range(aln.alignlen()):
+        col = [x[j] for x in aln.values()]
         chars = util.unique(col)
         if len(chars) > 1:
             # column has mutations
             # check bi-allelic
             if warn and len(chars) != 2:
-                print >>sys.stderr, "warning: not bi-allelic (site=%d)" % j
+                print("warning: not bi-allelic (site=%d)" % j, file=sys.stderr)
 
             part1 = tuple(sorted(names[i] for i, c in enumerate(col)
                                  if c == chars[0]))
@@ -2292,7 +2292,7 @@ def write_arg(filename, arg):
             ",".join(str(x.name) for x in node.children),
             out=out)
 
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         out.close()
 
 
@@ -2328,7 +2328,7 @@ def read_arg(filename, arg=None):
         arg = ARG()
 
     # read ARG key values
-    row = infile.next()
+    row = next(infile)
     for field in row:
         key, val = parse_key_value(field)
         if key == "start":
@@ -2337,7 +2337,7 @@ def read_arg(filename, arg=None):
             arg.end = int(val)
 
     # read header
-    row = infile.next()
+    row = next(infile)
     assert row == ["name", "event", "age", "pos", "parents", "children"]
 
     # read nodes
@@ -2348,9 +2348,9 @@ def read_arg(filename, arg=None):
                             age=float(row[2]),
                             pos=parse_number(row[3]))
         if len(row) > 4 and len(row[4]) > 0:
-            plinks[node.name] = map(parse_node_name, row[4].split(","))
+            plinks[node.name] = list(map(parse_node_name, row[4].split(",")))
         if len(row) > 5 and len(row[5]) > 0:
-            clinks[node.name] = map(parse_node_name, row[5].split(","))
+            clinks[node.name] = list(map(parse_node_name, row[5].split(",")))
 
     # setup parents
     for node in arg:
@@ -2391,13 +2391,13 @@ def write_tree_tracks(filename, arg, start=None, end=None, verbose=False):
     out = util.open_stream(filename, "w")
     for block, tree in iter_local_trees(arg, start, end):
         if verbose:
-            print >>sys.stderr, "writing block", block
+            print("writing block", block, file=sys.stderr)
         remove_single_lineages(tree)
         tree = tree.get_tree()
         out.write(str(int(block[0]))+"\t"+str(int(block[1]))+"\t")
         tree.write(out, oneline=True)
         out.write("\n")
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         out.close()
 
 
@@ -2413,7 +2413,7 @@ def write_mutations(filename, arg, mutations):
         l = get_marginal_leaves(arg, mut[0], mut[2])
         util.print_row(mut[2], mut[3], ",".join(x.name for x in l), out=out)
 
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         out.close()
 
 
@@ -2430,7 +2430,7 @@ def write_ancestral(filename, arg):
         regions = util.flatten(node.data.get("ancestral", ()))
         util.print_row(node.name, *regions, out=out)
 
-    if isinstance(filename, basestring):
+    if isinstance(filename, str):
         out.close()
 
 
@@ -2438,7 +2438,7 @@ def read_ancestral(filename, arg):
     for row in util.DelimReader(filename):
         node = arg[parse_node_name(row[0])]
         node.data["ancestral"] = [(int(row[i]), int(row[i+1]))
-                                  for i in xrange(1, len(row), 2)]
+                                  for i in range(1, len(row), 2)]
 
 
 #=============================================================================

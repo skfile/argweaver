@@ -13,7 +13,7 @@ from rasmus import util
 
 # compbio libs
 from . import fasta, seqlib
-from seqlib import *
+from .seqlib import *
 
 
 
@@ -42,7 +42,7 @@ def mapalign(aln, keyfunc=lambda x: x, valfunc=lambda x: x):
     """Maps the keys and values of an alignment"""
     
     aln2 = new_align(aln)
-    for key, val in aln.iteritems():
+    for key, val in aln.items():
         aln2[keyfunc(key)] = valfunc(val)
     return aln2
 
@@ -61,7 +61,7 @@ def remove_empty_columns(aln):
     """
 
     ind = []
-    seqs = aln.values()
+    seqs = list(aln.values())
     for i in range(aln.alignlen()):
         for seq in seqs:
             if seq[i] != "-":
@@ -76,7 +76,7 @@ def remove_gapped_columns(aln):
     
        A new alignment is returned
     """
-    cols = zip(* aln.values())
+    cols = list(zip(* list(aln.values())))
     ind = util.find(lambda col: "-" not in col, cols)
     return subalign(aln, ind)
 
@@ -86,7 +86,7 @@ def require_nseqs(aln, n):
     Keep only columns with atleast 'n' non gapped sequences
     """
 
-    seqs = aln.values()
+    seqs = list(aln.values())
     ind = [i for i in range(aln.alignlen())
            if sum(1 for seq in seqs if seq[i] != "-") >= n]
     return subalign(aln, ind)
@@ -126,13 +126,13 @@ def calc_conservation_string(aln):
 def calc_conservation(aln):
     """Returns a list of percent matching in each column of an alignment"""
 
-    length = len(aln.values()[0])
-    seqs = aln.values()
+    length = len(list(aln.values())[0])
+    seqs = list(aln.values())
     percids = []
     
     # find identity positions
     identity = ""
-    for i in xrange(length):
+    for i in range(length):
         chars = util.hist_dict(util.cget(seqs, i))
         if "-" in chars: del chars["-"]
         
@@ -150,9 +150,9 @@ def print_align(aln, seqwidth = 59, spacing=2, extra=fasta.FastaDict(),
     """Pretty print an alignment"""
                
     if order == None:
-        order = aln.keys()
+        order = list(aln.keys())
     
-    namewidth = max(map(len, order)) + spacing
+    namewidth = max(list(map(len, order))) + spacing
     
     def mkname(name, namewidth):
         name2 = name[:namewidth]
@@ -162,20 +162,20 @@ def print_align(aln, seqwidth = 59, spacing=2, extra=fasta.FastaDict(),
     identity = calc_conservation_string(aln)
     
     # print alignment
-    for i in xrange(0, len(aln.values()[0]), seqwidth):
+    for i in range(0, len(list(aln.values())[0]), seqwidth):
         # print sequences
         for name in order:
-            print >>out, "%s %s" % (mkname(name, namewidth), 
-                                    aln[name][i:i+seqwidth])
+            print("%s %s" % (mkname(name, namewidth), 
+                                    aln[name][i:i+seqwidth]), file=out)
         
         # print extra
-        for name in extra.keys():
-            print >>out, "%s %s" % (mkname(name, namewidth), 
-                                    extra[name][i:i+seqwidth])
+        for name in list(extra.keys()):
+            print("%s %s" % (mkname(name, namewidth), 
+                                    extra[name][i:i+seqwidth]), file=out)
         
         # print identity
-        print >>out, (" "*namewidth) + " " + identity[i:i+seqwidth]
-        print >>out
+        print((" "*namewidth) + " " + identity[i:i+seqwidth], file=out)
+        print(file=out)
 
 
 def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
@@ -186,7 +186,7 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
     
     align = new_align(aaseqs)
     
-    for name, seq in aaseqs.iteritems():
+    for name, seq in aaseqs.items():
         try:
             dna = dnaseqs[name].upper()
             dnalen = len(dna)
@@ -203,7 +203,7 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
                     else:
                         # trim peptide to match nucleotide
                         j = 0
-                        for i in xrange(len(seq)):
+                        for i in range(len(seq)):
                             if seq[i] != '-':
                                 j += 1
                                 if j > len(dna) // 3:
@@ -219,7 +219,7 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
 
                 else:
                     # is last residue X?
-                    for i in xrange(len(seq)-1, -1, -1):
+                    for i in range(len(seq)-1, -1, -1):
                         if seq[i] == "-":
                             continue
                         if seq[i] == "X":
@@ -230,7 +230,7 @@ def revtranslate_align(aaseqs, dnaseqs, check=False, trim=False):
 
             
             align[name] = revtranslate(seq, dna, check=check)
-        except TranslateError, e:
+        except TranslateError as e:
             raise
     
     return align
@@ -283,14 +283,14 @@ def find_aligned_codons(aln):
        codons.  
     """
 
-    ind = range(aln.alignlen())
+    ind = list(range(aln.alignlen()))
     
     # throw out codons with non mod 3 gaps
     ind2 = []
     for i in range(0, aln.alignlen(), 3):
         bad = False
         
-        for key, val in aln.iteritems():
+        for key, val in aln.items():
             codon = val[i:i+3]
             if "-" in codon and codon != "---":
                 bad = True
@@ -323,9 +323,9 @@ def find_four_fold(aln):
     # find peptide conservation
     pepcons = []
     pep = []
-    for i in xrange(pepAln.alignlen()):
+    for i in range(pepAln.alignlen()):
         # get a column from the peptide alignment
-        col = [seq[i] for seq in pepAln.itervalues()]
+        col = [seq[i] for seq in pepAln.values()]
         
         # compute the histogram of the column.
         # ignore gaps '-' and non-translated 'X'
@@ -338,7 +338,7 @@ def find_four_fold(aln):
         # column is conserved if only one AA appears
         if len(hist) == 1:
             pepcons.append(True)
-            pep.append(hist.keys()[0])
+            pep.append(list(hist.keys())[0])
         else:
             pepcons.append(False)
             pep.append("X")
@@ -347,7 +347,7 @@ def find_four_fold(aln):
     # find four-fold sites in conserved peptides
     ind = []
     
-    for i in range(0, len(aln.values()[0]), 3):
+    for i in range(0, len(list(aln.values())[0]), 3):
         # process only those columns that are conserved at the peptide level
         if pepcons[i//3]:
             degen = AA_DEGEN[pep[i//3]]
@@ -374,7 +374,7 @@ def filter_four_fold(aln):
 
 
 def calc_four_fold_dist_matrix(aln):
-    names = aln.keys()
+    names = list(aln.keys())
 
     mat = []
     # calc upper triangular
@@ -408,7 +408,7 @@ def find_degen(aln):
     aln2 = subalign(aln, codon_ind)
     
     pep_aln = mapalign(aln2, valfunc=translate)
-    pep = pep_aln.values()[0]
+    pep = list(pep_aln.values())[0]
     identies = calc_conservation(pep_aln)
     
     degens = [-1] * aln.alignlen()
@@ -457,9 +457,9 @@ def align2pssm(aln, pseudocounts = {}):
     pssm = []
     denom = float(len(aln)) + sum(pseudocounts.values())
     
-    for i in xrange(aln.alignlen()):
+    for i in range(aln.alignlen()):
         freqs = defaultdict(lambda: 0)
-        for j in xrange(len(aln)):
+        for j in range(len(aln)):
             freqs[aln[j][i]] += 1
         
         for key in pseudocounts:
@@ -473,7 +473,7 @@ def align2pssm(aln, pseudocounts = {}):
 
 def pssmSeq(pssm, seq):
     score = 0.0
-    for i in xrange(len(seq)):
+    for i in range(len(seq)):
         score += pssm[i][seq[i]]
     return score
 
@@ -562,7 +562,7 @@ def local2align(seq):
     """
     
     lookup = []
-    for i in xrange(len(seq)):
+    for i in range(len(seq)):
         if seq[i] == "-": continue
         lookup.append(i)
     return lookup

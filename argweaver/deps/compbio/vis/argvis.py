@@ -5,7 +5,7 @@
 """
 
 # python imports
-from itertools import chain, izip
+from itertools import chain
 import random
 from math import *
 
@@ -89,7 +89,7 @@ def layout_arg(arg, leaves=None, yfunc=lambda x: x):
 
 def map_layout(layout, xfunc=lambda x: x, yfunc=lambda x: x):
 
-    for node, (x, y) in layout.items():
+    for node, (x, y) in list(layout.items()):
         layout[node] = [xfunc(x), yfunc(y)]
 
     return layout
@@ -130,7 +130,7 @@ def show_arg(arg, layout=None, leaves=None, mut=None, recomb_width=.4,
 
     # callbacks
     def branch_click(node, parent):
-        print node.name, parent.name
+        print(node.name, parent.name)
 
     # draw ARG
     win.add_group(draw_arg(arg, layout, recomb_width=recomb_width,
@@ -192,9 +192,9 @@ def show_marginal_trees(arg, mut=None):
 
     blocks = arglib.iter_recomb_blocks(arg)
 
-    for tree, block in izip(arglib.iter_marginal_trees(arg), blocks):
+    for tree, block in zip(arglib.iter_marginal_trees(arg), blocks):
         pos = block[0]
-        print pos
+        print(pos)
 
         leaves = sorted((x for x in tree.leaves()), key=lambda x: x.name)
         layout = layout_arg(tree, leaves)
@@ -204,7 +204,7 @@ def show_marginal_trees(arg, mut=None):
                       text_clip(
                     "%d-%d" % (block[0], block[1]),
                     treewidth*.05, 0,
-                    treewidth*.95, -max(l[1] for l in layout.values()),
+                    treewidth*.95, -max(l[1] for l in list(layout.values())),
                     4, 20,
                     "center", "top")))
 
@@ -255,13 +255,13 @@ def show_tree_track(tree_track, mut=None, show_labels=False,
         return hotspot("click", x-.5, y, x+.5, y2, func)
 
     def print_branch(node, parent):
-        print "node", node.name
+        print("node", node.name)
 
 
     tree_track = iter(tree_track)
     if mut:
         mut = util.PushIter(mut)
-    block, tree = tree_track.next()
+    block, tree = next(tree_track)
     if branch_click is True:
         branch_click = print_branch
 
@@ -279,7 +279,7 @@ def show_tree_track(tree_track, mut=None, show_labels=False,
 
     for block, tree in chain([(block, tree)], tree_track):
         pos = block[0]
-        print pos
+        print(pos)
 
         layout = treelib.layout_tree(tree, xscale=1, yscale=1)
         treelib.layout_tree_vertical(layout, leaves=0)
@@ -291,7 +291,7 @@ def show_tree_track(tree_track, mut=None, show_labels=False,
                       text_clip(
                     "%d-%d" % (block[0], block[1]),
                     treewidth*.05, 0,
-                    treewidth*.95, -max(l[1] for l in layout.values()),
+                    treewidth*.95, -max(l[1] for l in list(layout.values())),
                     4, 20,
                     "center", "top")))
 
@@ -342,7 +342,7 @@ def show_coal_track(tree_track):
 
     maxage = 0
     for (start, end), tree in tree_track:
-        print start
+        print(start)
         l = []
         times = treelib.get_tree_timestamps(tree)
         nleaves = len(tree.leaves())
@@ -362,7 +362,7 @@ def show_coal_track(tree_track):
     # hotspot
     def func():
         x, y = win.get_mouse_pos()
-        print "pos=%s age=%f" % (util.int2pretty(int(x)), y)
+        print("pos=%s age=%f" % (util.int2pretty(int(x)), y))
     win.add_group(hotspot("click", 0, 0, end, maxage,
                           func))
 
@@ -392,7 +392,7 @@ def show_smc(smc, mut=None, show_labels=False, branch_click=None,
         return hotspot("click", x-.5, y, x+.5, y2, func)
 
     def print_branch(node, parent):
-        print "node", node.name
+        print("node", node.name)
 
     def trans_camera(win, x, y):
         v = win.get_visible()
@@ -400,11 +400,11 @@ def show_smc(smc, mut=None, show_labels=False, branch_click=None,
 
     def on_scroll_window(win):
         region = win.get_visible()
-        print region
+        print(region)
 
     def on_resize_window(win):
         region = win.get_visible()
-        print region
+        print(region)
 
 
 
@@ -433,7 +433,7 @@ def show_smc(smc, mut=None, show_labels=False, branch_click=None,
         if item["tag"] == "NAMES":
             names = item["names"]
             if not use_names:
-                names = map(str, range(len(names)))
+                names = list(map(str, list(range(len(names)))))
 
             treewidth = len(names)
 
@@ -449,7 +449,7 @@ def show_smc(smc, mut=None, show_labels=False, branch_click=None,
 
             region_text = text_clip("%d-%d" % (item["start"], item["end"]),
                         treewidth*.05, 0,
-                        treewidth*.95, -max(l[1] for l in layout.values()),
+                        treewidth*.95, -max(l[1] for l in list(layout.values())),
                         4, 20,
                         "center", "top")
 
@@ -571,7 +571,7 @@ def show_coal_track3(tree_track):
 
     maxage = 0
     for (start, end), tree in tree_track:
-        print start
+        print(start)
         l = []
         times = treelib.get_tree_timestamps(tree)
         nleaves = len(tree.leaves())
@@ -591,7 +591,7 @@ def show_coal_track3(tree_track):
 
     def func():
         x, y = win.get_mouse_pos()
-        print "pos=%s age=%f" % (util.int2pretty(int(x)), y)
+        print("pos=%s age=%f" % (util.int2pretty(int(x)), y))
     win.add_group(hotspot("click", 0, 0, end, maxage,
                           func))
 
@@ -612,7 +612,7 @@ def show_coal_track2(tree_track):
 
     maxage = 0
     for (start, end), tree in tree_track:
-        print start
+        print(start)
         l = []
         times = treelib.get_tree_timestamps(tree)
         nleaves = len(tree.leaves())
@@ -635,7 +635,7 @@ def show_coal_track2(tree_track):
 
     def func():
         x, y = win.get_mouse_pos()
-        print "pos=%s age=%f" % (util.int2pretty(int(x)), y)
+        print("pos=%s age=%f" % (util.int2pretty(int(x)), y))
     win.add_group(hotspot("click", 0, 0, end, maxage,
                           func))
 
@@ -655,7 +655,7 @@ def show_coal_track2(tree_track):
 
     maxage = 0
     for (start, end), tree in tree_track:
-        print start
+        print(start)
         l = []
         times = treelib.get_tree_timestamps(tree)
         nleaves = len(tree.leaves())
@@ -678,7 +678,7 @@ def show_coal_track2(tree_track):
 
     def func():
         x, y = win.get_mouse_pos()
-        print "pos=%s age=%f" % (util.int2pretty(int(x)), y)
+        print("pos=%s age=%f" % (util.int2pretty(int(x)), y))
     win.add_group(hotspot("click", 0, 0, end, maxage,
                           func))
 
@@ -839,9 +839,9 @@ def layout_tree_leaves(tree):
             #y += exp(node.age / 5e2) + 1
             #y += log(node.age + 1) ** 3
 
-    vals = layout.values()
+    vals = list(layout.values())
     mid = (max(vals) + min(vals)) / 2.0
-    for k, v in layout.items():
+    for k, v in list(layout.items()):
         layout[k] = (v - mid)
 
     return layout
@@ -864,7 +864,7 @@ def layout_chroms(arg, start=None, end=None):
     #layout_func = layout_tree_leaves_even
 
     for spr in arglib.iter_arg_sprs(arg, start=start, end=end, use_leaves=True):
-        print "layout", spr[0]
+        print("layout", spr[0])
         blocks.append([last_pos, spr[0]])
         leaf_layout.append(layout_func(tree))
         inorder = dict((n, i) for i, n in enumerate(inorder_tree(tree)))
@@ -914,13 +914,13 @@ def layout_tree_block(tree, names):
 
 
 def mouse_click(win):
-    print win.get_mouse_pos("world")
+    print(win.get_mouse_pos("world"))
 
 
 def chrom_click(win, chrom, block):
     def func():
         if win:
-            print chrom, block, win.get_mouse_pos("world")[0]
+            print(chrom, block, win.get_mouse_pos("world")[0])
     return func
 
 

@@ -17,7 +17,7 @@ def run_cmd(cmd, retcode=0, set_pypath=True):
     """Run a command check its return code"""
     if set_pypath:
         cmd = "PYTHONPATH=. " + cmd
-    print cmd
+    print(cmd)
     result = subprocess.call(cmd, shell=True)
     assert result == retcode, (result, retcode)
 
@@ -64,7 +64,7 @@ def test_prog_popsizes():
     make_clean_dir("test/tmp/test_prog_popsizes")
 
     # Setup popsize config file.
-    popsizes = range(10000, 0, -1000)
+    popsizes = list(range(10000, 0, -1000))
     with open('test/tmp/test_prog_popsizes/popsizes', 'w') as out:
         out.write('\n'.join(map(str, popsizes)))
 
@@ -84,7 +84,7 @@ def test_prog_popsizes():
         -o test/tmp/test_prog_popsizes/0.sample/out""")
 
     # Write too few population sizes to config file.
-    popsizes_bad = range(10000, 5000, -1000)
+    popsizes_bad = list(range(10000, 5000, -1000))
     with open('test/tmp/test_prog_popsizes/popsizes-bad', 'w') as out:
         out.write('\n'.join(map(str, popsizes_bad)))
 
@@ -225,8 +225,8 @@ def _test_prog_infsites():
     arg = argweaver.read_arg(
         "test/tmp/test_prog_infsites/0.sample/out.0.smc.gz")
     sites = argweaver.read_sites("test/tmp/test_prog_infsites/0.sites")
-    print "names", sites.names
-    print
+    print("names", sites.names)
+    print()
 
     noncompats = []
     for block, tree in arglib.iter_local_trees(arg):
@@ -239,11 +239,11 @@ def _test_prog_infsites():
             node = arglib.split_to_tree_branch(tree, split)
             if node is None:
                 noncompats.append(pos)
-                print "noncompat", block, pos, col
-                print phylo.hash_tree(tree)
-                print tree.leaf_names()
-                print "".join(col[sites.names.index(name)]
-                              for name in tree.leaf_names())
-                print split
-                print
-    print "num noncompats", len(noncompats)
+                print("noncompat", block, pos, col)
+                print(phylo.hash_tree(tree))
+                print(tree.leaf_names())
+                print("".join(col[sites.names.index(name)]
+                              for name in tree.leaf_names()))
+                print(split)
+                print()
+    print("num noncompats", len(noncompats))

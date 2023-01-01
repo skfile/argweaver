@@ -1,6 +1,6 @@
 
-from itertools import izip
-import StringIO
+
+import io
 
 import nose
 
@@ -37,7 +37,7 @@ def arg_equal(arg, arg2):
     sprs1 = arglib.iter_arg_sprs(arg, use_leaves=True)
     sprs2 = arglib.iter_arg_sprs(arg2, use_leaves=True)
 
-    for (pos1, recomb1, coal1), (pos2, recomb2, coal2) in izip(sprs1, sprs2):
+    for (pos1, recomb1, coal1), (pos2, recomb2, coal2) in zip(sprs1, sprs2):
         recomb1 = (sorted(recomb1[0]), recomb1[1])
         recomb2 = (sorted(recomb2[0]), recomb2[1])
         coal1 = (sorted(coal1[0]), coal1[1])
@@ -112,7 +112,7 @@ def test_arg2smc():
     """
     Test that an ARG be converted to SMC and back.
     """
-    infile = StringIO.StringIO(_smc_example)
+    infile = io.StringIO(_smc_example)
     smc = argweaver.read_smc(infile)
     arg = argweaver.smc2arg(smc)
 

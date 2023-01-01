@@ -58,7 +58,7 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 conf, args = o.parse_args()
-conf.popsize = map(float, conf.popsize.split(','))
+conf.popsize = list(map(float, conf.popsize.split(',')))
 
 def write_mutations(stream, muts):
     for (node, parent, pos, age) in muts:
@@ -77,13 +77,13 @@ if conf.seed:
 
 
 # log model parameters
-print "model parameters:"
-print "  nseqs =", conf.nseqs
-print "  seqlen =", conf.seqlen
-print "  mutation rate =", conf.mutrate
-print "  recombination rate =", conf.recombrate
-print "  population size =", conf.popsize
-print
+print("model parameters:")
+print("  nseqs =", conf.nseqs)
+print("  seqlen =", conf.seqlen)
+print("  mutation rate =", conf.mutrate)
+print("  recombination rate =", conf.recombrate)
+print("  population size =", conf.popsize)
+print()
 
 if conf.recombmap:
     recombmap = util.read_delim(conf.recombmap, parse=True)
@@ -91,7 +91,7 @@ else:
     recombmap = None
 
 if conf.model == "coal_recomb":
-    print "simulating using the Coalescent with Recombination model..."
+    print("simulating using the Coalescent with Recombination model...")
     arg = arglib.sample_arg(conf.nseqs, 2*conf.popsize, conf.recombrate,
                             start=0, end=conf.seqlen)
     if conf.discretize_sites:
@@ -101,7 +101,7 @@ if conf.model == "coal_recomb":
         muts = list(discretize_mutations(muts))
 
 elif conf.model == "smc":
-    print "simulating using the SMC model..."
+    print("simulating using the SMC model...")
     arg = arglib.sample_arg_smc(conf.nseqs, 2*conf.popsize, conf.recombrate,
                                 start=0, end=conf.seqlen)
     if conf.discretize_sites:
@@ -111,15 +111,15 @@ elif conf.model == "smc":
         muts = list(discretize_mutations(muts))
 
 elif conf.model == "dsmc":
-    print "simulating using the DSMC model..."
+    print("simulating using the DSMC model...")
     if len(conf.popsize)==1:
         conf.popsize=[conf.popsize[0]*2] * conf.ntimes
     times = argweaver.get_time_points(ntimes=conf.ntimes, maxtime=conf.maxtime,
                                       delta=conf.delta)
     times2 = argweaver.get_time_points(ntimes=2*conf.ntimes-1, maxtime=conf.maxtime,
                                        delta=conf.delta)
-    print times
-    print times2
+    print(times)
+    print(times2)
     arg = argweaver.sim.sample_arg_dsmc(
         conf.nseqs, conf.popsize, conf.recombrate,
         recombmap=recombmap,
@@ -127,7 +127,7 @@ elif conf.model == "dsmc":
     muts = argweaver.sim.sample_arg_mutations(arg, conf.mutrate, times=times)
 
 else:
-    print >>sys.stderr, "unknown simulation model:", conf.model
+    print("unknown simulation model:", conf.model, file=sys.stderr)
 
 # simulate sequence
 seqs = argweaver.sim.make_alignment(arg, muts, infsites=conf.infsites)
@@ -139,13 +139,13 @@ path = os.path.dirname(conf.output)
 if path:
     util.makedirs(path)
 
-print "writing output: ", conf.output + ".sites"
+print("writing output: ", conf.output + ".sites")
 sites.write(conf.output + ".sites")
 
-print "writing output: ", conf.output + ".arg"
+print("writing output: ", conf.output + ".arg")
 arglib.write_arg(conf.output + ".arg", arg)
 
 if conf.output_mutations:
-    print "writing output: ", conf.output + ".mut"
+    print("writing output: ", conf.output + ".mut")
     with open(conf.output + ".mut", "w") as out:
         write_mutations(out, muts)

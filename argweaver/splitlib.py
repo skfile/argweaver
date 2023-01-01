@@ -1,5 +1,5 @@
 
-from itertools import izip
+
 from collections import defaultdict
 
 from compbio import arglib
@@ -112,10 +112,10 @@ def get_split_tracks(conflicts, left, right, breaks):
         all_lefts[j].append(i)
 
     # init tracks
-    tracks = [[-.5, n-.5] for i in xrange(n)]
+    tracks = [[-.5, n-.5] for i in range(n)]
 
     # set right endpoints
-    for i in xrange(n):
+    for i in range(n):
         if right[i] == n:
             # no one is to the right
             tracks[i][1] = n-.5
@@ -123,7 +123,7 @@ def get_split_tracks(conflicts, left, right, breaks):
             tracks[i][1] = max(b for b in breaks if b < right[i])
 
     # set left endpoints
-    for i in xrange(n):
+    for i in range(n):
         if left[i] == -1:
             # no one is to the left
             tracks[i][0] = -.5
@@ -144,7 +144,7 @@ def get_split_sets(splits, tracks, breaks):
     blocks.append([])
 
     seen = set()
-    for split, track in izip(splits, tracks):
+    for split, track in zip(splits, tracks):
         if (split, track[0], track[1]) in seen:
             continue
         seen.add((split, track[0], track[1]))
@@ -162,7 +162,7 @@ def get_split_sets(splits, tracks, breaks):
         else:
             end_block = end_break
 
-        for i in xrange(start_block, end_block+1):
+        for i in range(start_block, end_block+1):
             blocks[i].append(split)
 
     return blocks
@@ -173,14 +173,14 @@ def assert_splits(blocks, split_sets, mut_splits, mut_pos):
     i = 0
 
     # are splits in split_sets mutually compatiable?
-    for block, splits in izip(blocks, split_sets):
-        for i in xrange(len(splits)):
-            for j in xrange(i+1, len(splits)):
+    for block, splits in zip(blocks, split_sets):
+        for i in range(len(splits)):
+            for j in range(i+1, len(splits)):
                 assert arglib.is_split_compatible(splits[i], splits[j]), \
                     (splits[i], splits[j])
 
     # are splits in split_sets compatible with mutation splits?
-    for block, splits in izip(blocks, split_sets):
+    for block, splits in zip(blocks, split_sets):
         while i < len(mut_pos) and mut_pos[i] < block[1]:
             for split in splits:
                 assert arglib.is_split_compatible(mut_splits[i], split), \
@@ -211,7 +211,7 @@ def iter_parsimonous_tree(split_sets, leaves, rooted=True):
 
     # make inferred trees
     for split_set in split_sets:
-        splits2 = [(map(str, s), tuple(str(i) for i in leaves
+        splits2 = [(list(map(str, s)), tuple(str(i) for i in leaves
                                        if i not in s))
                    for s in split_set]
         tree = phylo.splits2tree(splits2, rooted=rooted)
@@ -231,7 +231,7 @@ def get_mutation_split_tracks(arg, mut_splits, mut_pos):
 
     # find regions for splits
     i = 0
-    for block, tree in izip(arglib.iter_recomb_blocks(arg),
+    for block, tree in zip(arglib.iter_recomb_blocks(arg),
                             arglib.iter_marginal_trees(arg)):
         for node in tree:
             if len(node.children) != 2 or node.children[0] == node.children[1]:
@@ -248,7 +248,7 @@ def get_mutation_split_tracks(arg, mut_splits, mut_pos):
 
     # keep only tracks who have a mutation in their interval
     mut_tracks = []
-    for i in xrange(len(mut_pos)):
+    for i in range(len(mut_pos)):
         for region in mut_split_tracks[mut_splits[i]]:
             if region[0] < mut_pos[i] < region[1]:
                 a = util.binsearch(mut_pos, region[0])[0]

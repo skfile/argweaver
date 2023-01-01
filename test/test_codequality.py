@@ -12,7 +12,7 @@ def run(cmd, shell=True):
     out = pipe.stdout.read()
     retcode = pipe.wait()
     if retcode != 0:
-        print out
+        print(out)
     return retcode
 
 
@@ -21,7 +21,7 @@ def run_pyflakes(filenames, key=lambda line: True):
     Run pyflakes and return all errors.
     """
     cmd = " ".join(["pyflakes"] + filenames)
-    print cmd
+    print(cmd)
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     lines = [line for line in pipe.stdout if key(line)]
     pipe.wait()
@@ -45,7 +45,7 @@ def run_pep8(filenames, key=lambda line: True):
     options.extend(['--ignore', ','.join(ignore)])
 
     cmd = " ".join(["pep8"] + options + filenames)
-    print cmd
+    print(cmd)
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     lines = [line for line in pipe.stdout if key(line)]
     pipe.wait()
@@ -126,12 +126,12 @@ def test_bin():
     for filename in filenames:
         cmd = "export PYTHONPATH=\n %s --help < /dev/null" % filename
         if run(cmd) != 0:
-            print "ERROR>", filename
+            print("ERROR>", filename)
             errors.append(filename)
 
     if len(errors) > 0:
-        print "scripts with erroneous imports:"
-        print "\n".join(errors)
+        print("scripts with erroneous imports:")
+        print("\n".join(errors))
         raise Exception()
 
 
@@ -143,8 +143,8 @@ def test_pyflakes():
     lines = run_pyflakes(filenames, key=pyflakes_filter)
 
     if len(lines) > 0:
-        print "pyflakes errors:"
-        print "".join(lines)
+        print("pyflakes errors:")
+        print("".join(lines))
         raise Exception()
 
 
@@ -156,8 +156,8 @@ def test_pep8():
     lines = run_pep8(filenames, key=pep8_filter)
 
     if len(lines) > 0:
-        print "pep8 errors:"
-        print "".join(lines)
+        print("pep8 errors:")
+        print("".join(lines))
         raise Exception()
 
 
@@ -179,4 +179,4 @@ def test_arghmm():
     lines = [line for line in pipe.stdout if key(line)]
     pipe.wait()
     for line in lines:
-        print line,
+        print(line, end=' ')
