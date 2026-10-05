@@ -1,3 +1,11 @@
+# Project archive
+
+A research fork preserving two commits that attempted a Python 2-to-3 migration of ARGweaver. These were migration experiments, not a verified complete port. The upstream documentation is retained below.
+
+This repository is archived and is not actively maintained. Its code and history are preserved for reference.
+
+---
+
 ARGweaver and ARGweaver-D
 =========
 
